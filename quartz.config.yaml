@@ -7,7 +7,7 @@ configuration:
   analytics:
     provider: plausible
   locale: en-US
-  baseUrl: neuralnetworks.io
+  baseUrl: neuralnotess.com
   ignorePatterns:
     - private
     - templates
