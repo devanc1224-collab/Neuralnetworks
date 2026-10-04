@@ -16,30 +16,30 @@ configuration:
     fontOrigin: googleFonts
     cdnCaching: true
     typography:
-      header: Geist
+      header: Sora
       body: Geist
       code: Geist Mono
     colors:
       lightMode:
-        light: "#fbfcfd"
-        lightgray: "#e3e8ef"
-        gray: "#94a0b1"
-        darkgray: "#384252"
-        dark: "#0f1b2d"
-        secondary: "#2456c9"
-        tertiary: "#16388a"
-        highlight: rgba(36, 86, 201, 0.08)
-        textHighlight: "#ffe26688"
+        light: "#dcd9d3"
+        lightgray: "#c4c0b8"
+        gray: "#857f76"
+        darkgray: "#3a3835"
+        dark: "#1b1a18"
+        secondary: "#7a4e0c"
+        tertiary: "#553605"
+        highlight: rgba(122, 78, 12, 0.1)
+        textHighlight: "#d4a85f77"
       darkMode:
-        light: "#0e1624"
-        lightgray: "#212d40"
-        gray: "#5d6c83"
-        darkgray: "#c2ccda"
-        dark: "#eef2f8"
-        secondary: "#7aa7f5"
-        tertiary: "#a9c6fb"
-        highlight: rgba(122, 167, 245, 0.12)
-        textHighlight: "#d6b40055"
+        light: "#1e2023"
+        lightgray: "#383c41"
+        gray: "#8a8e94"
+        darkgray: "#cbc9c4"
+        dark: "#f2efe9"
+        secondary: "#d4a85f"
+        tertiary: "#edd09a"
+        highlight: rgba(212, 168, 95, 0.1)
+        textHighlight: "#d4a85f55"
 plugins:
   - source: "@quartz-community/created-modified-date"
     enabled: true
@@ -102,7 +102,7 @@ plugins:
     enabled: true
     options:
       fontOrigin: googleFonts
-      header: Geist
+      header: Sora
       body: Geist
       code: Geist Mono
   - source: "@quartz-themes/core"
@@ -231,7 +231,16 @@ plugins:
       position: footer
       priority: 50
   - source: "@quartz-community/recent-notes"
-    enabled: false
+    enabled: true
+    options:
+      title: Recently updated
+      limit: 6
+      showTags: true
+      hideTagPages: true
+      hideFolderPages: true
+    layout:
+      position: afterBody
+      priority: 20
   - source: "@quartz-community/spacer"
     enabled: true
     options: {}
