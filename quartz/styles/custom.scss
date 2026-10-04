@@ -1,3 +1,134 @@
 @use "./variables.scss" as *;
 
-// put your custom CSS here!
+// Neural Notes: clean, quiet, readable.
+
+body {
+  font-size: 1.02rem;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+// Comfortable reading rhythm in notes
+article {
+  line-height: 1.7;
+
+  p,
+  li {
+    max-width: 70ch;
+  }
+}
+
+// Tighter, calmer headings
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+h1.article-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  margin-bottom: 0.4rem;
+}
+
+article h2 {
+  margin-top: 2.6rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--lightgray);
+}
+
+// Site name in the sidebar
+.page-title {
+  font-size: 1.3rem;
+  letter-spacing: -0.03em;
+}
+
+// Links: plain text with an underline that firms up on hover,
+// instead of the default tinted pill
+a {
+  font-weight: 500;
+}
+
+article a.internal,
+article a.external {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--secondary) 35%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition:
+    color 0.15s ease,
+    text-decoration-color 0.15s ease;
+
+  &:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+article a.internal.tag-link {
+  text-decoration: none;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--secondary) 22%, transparent);
+  color: var(--dark);
+}
+
+// Quotes, code, tables, dividers
+blockquote {
+  border-left: 2px solid var(--secondary);
+  padding-left: 1.1rem;
+  margin-left: 0;
+}
+
+pre,
+figure[data-rehype-pretty-code-figure] pre {
+  border-radius: 8px;
+}
+
+article :not(pre) > code {
+  font-size: 0.86em;
+  border-radius: 4px;
+}
+
+hr {
+  background-color: var(--lightgray);
+  margin: 2.5rem auto;
+}
+
+// Visible keyboard focus
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+// Site name: solid and neutral rather than link-coloured
+.page-title a {
+  color: var(--dark);
+  font-weight: 700;
+
+  &:hover {
+    color: var(--secondary);
+  }
+}
+
+// Homepage: larger opening heading
+body[data-slug="index"] article h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin-top: 0;
+}
+
+body[data-slug="index"] article p {
+  font-size: 1.15rem;
+  color: var(--darkgray);
+}

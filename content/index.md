@@ -1,6 +1,7 @@
 ---
-title: Welcome to Quartz
+title: Home
 ---
 
-This is a blank Quartz installation.
-See the [documentation](https://quartz.jzhao.xyz) for how to get started.
+# Welcome
+
+Notes published from my Obsidian vault. Browse with the explorer on the left, or search to jump straight to a topic.

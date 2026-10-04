@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
-  pageTitle: Quartz 5
-  pageTitleSuffix: ""
+  pageTitle: Neural Notes
+  pageTitleSuffix: " | Neural Notes"
   enableSPA: true
   enablePopovers: true
   analytics:
@@ -16,30 +16,30 @@ configuration:
     fontOrigin: googleFonts
     cdnCaching: true
     typography:
-      header: Schibsted Grotesk
-      body: Source Sans Pro
-      code: IBM Plex Mono
+      header: Geist
+      body: Geist
+      code: Geist Mono
     colors:
       lightMode:
-        light: "#faf8f8"
-        lightgray: "#e5e5e5"
-        gray: "#b8b8b8"
-        darkgray: "#4e4e4e"
-        dark: "#2b2b2b"
-        secondary: "#284b63"
-        tertiary: "#84a59d"
-        highlight: rgba(143, 159, 169, 0.15)
-        textHighlight: "#fff23688"
+        light: "#fbfcfd"
+        lightgray: "#e3e8ef"
+        gray: "#94a0b1"
+        darkgray: "#384252"
+        dark: "#0f1b2d"
+        secondary: "#2456c9"
+        tertiary: "#16388a"
+        highlight: rgba(36, 86, 201, 0.08)
+        textHighlight: "#ffe26688"
       darkMode:
-        light: "#161618"
-        lightgray: "#393639"
-        gray: "#646464"
-        darkgray: "#d4d4d4"
-        dark: "#ebebec"
-        secondary: "#7b97aa"
-        tertiary: "#84a59d"
-        highlight: rgba(143, 159, 169, 0.15)
-        textHighlight: "#b3aa0288"
+        light: "#0e1624"
+        lightgray: "#212d40"
+        gray: "#5d6c83"
+        darkgray: "#c2ccda"
+        dark: "#eef2f8"
+        secondary: "#7aa7f5"
+        tertiary: "#a9c6fb"
+        highlight: rgba(122, 167, 245, 0.12)
+        textHighlight: "#d6b40055"
 plugins:
   - source: "@quartz-community/created-modified-date"
     enabled: true
@@ -100,6 +100,11 @@ plugins:
     order: 92
   - source: "@quartz-community/quartz-fonts"
     enabled: true
+    options:
+      fontOrigin: googleFonts
+      header: Geist
+      body: Geist
+      code: Geist Mono
   - source: "@quartz-themes/core"
     enabled: false
     options:
@@ -175,11 +180,13 @@ plugins:
     layout:
       position: beforeBody
       priority: 10
+      condition: not-index
   - source: "@quartz-community/content-meta"
     enabled: true
     layout:
       position: beforeBody
       priority: 20
+      condition: not-index
   - source: "@quartz-community/tag-list"
     enabled: false
     layout:
@@ -219,9 +226,7 @@ plugins:
   - source: "@quartz-community/footer"
     enabled: true
     options:
-      links:
-        GitHub: https://github.com/jackyzha0/quartz
-        Discord Community: https://discord.gg/cRFFHYye7t
+      links: {}
     layout:
       position: footer
       priority: 50
