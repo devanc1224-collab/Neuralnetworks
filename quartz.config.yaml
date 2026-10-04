@@ -226,7 +226,8 @@ plugins:
   - source: "@quartz-community/footer"
     enabled: true
     options:
-      links: {}
+      links:
+        RSS feed: https://neuralnotess.com/index.xml
     layout:
       position: footer
       priority: 50
