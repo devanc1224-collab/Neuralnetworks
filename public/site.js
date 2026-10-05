@@ -56,12 +56,12 @@
           var d2 = dx * dx + dy * dy;
           if (d2 < R * R) {
             var k = 1 - Math.sqrt(d2) / R;
-            ctx.fillStyle = "rgba(255," + Math.round(120 + 100 * (1 - k)) + "," + Math.round(125 + 100 * (1 - k)) + "," + (0.13 + k * 0.75) + ")";
+            ctx.fillStyle = "rgba(" + Math.round(120 + 90 * (1 - k)) + "," + Math.round(185 + 45 * (1 - k)) + ",255," + (0.16 + k * 0.75) + ")";
             ctx.beginPath();
             ctx.arc(x, y, 1 + k * 1.3, 0, 6.2832);
             ctx.fill();
           } else {
-            ctx.fillStyle = "rgba(255,255,255,0.17)";
+            ctx.fillStyle = "rgba(180,210,255,0.2)";
             ctx.fillRect(x - 0.6, y - 0.6, 1.2, 1.2);
           }
         }
@@ -77,14 +77,14 @@
           var a = 1 - age / 4;
           var px = sig.path[i][0] * GAP, py = sig.path[i][1] * GAP;
           if (i > 0 && age < 3) {
-            ctx.strokeStyle = "rgba(229,72,77," + a * 0.55 + ")";
+            ctx.strokeStyle = "rgba(77,163,255," + a * 0.55 + ")";
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(sig.path[i - 1][0] * GAP, sig.path[i - 1][1] * GAP);
             ctx.lineTo(px, py);
             ctx.stroke();
           }
-          ctx.fillStyle = "rgba(255,120,125," + a + ")";
+          ctx.fillStyle = "rgba(160,210,255," + a + ")";
           ctx.beginPath();
           ctx.arc(px, py, 1.2 + a * 1.4, 0, 6.2832);
           ctx.fill();

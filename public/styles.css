@@ -1,17 +1,20 @@
-/* neural notes: true black, soft glow, glass panels, one red accent */
+/* neural notes: deep blue, frosted glass panels, soft glow */
 
 :root {
-  --bg: #000;
-  --panel: rgba(255, 255, 255, 0.028);
-  --panel-solid: #0a0a0b;
-  --line: rgba(255, 255, 255, 0.09);
-  --line-strong: rgba(255, 255, 255, 0.2);
-  --text: #f1f1f1;
-  --muted: #a0a0a8;
-  --dim: #6c6c75;
-  --accent: #e5484d;
-  --accent-soft: rgba(229, 72, 77, 0.16);
-  --accent-text: #ff8589;
+  --bg: #050a14;
+  --panel-solid: #0a1424;
+  --line: rgba(170, 205, 255, 0.14);
+  --line-strong: rgba(180, 215, 255, 0.32);
+  --text: #eef4ff;
+  --muted: #a3b4cc;
+  --dim: #6b7b93;
+  --accent: #4da3ff;
+  --accent-rgb: 77, 163, 255;
+  --accent-soft: rgba(77, 163, 255, 0.16);
+  --accent-text: #9ccbff;
+  --glass: linear-gradient(180deg, rgba(160, 200, 255, 0.11), rgba(160, 200, 255, 0.035));
+  --glass-blur: blur(22px) saturate(150%);
+  --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
   --radius: 20px;
   --display: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --body: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -28,7 +31,7 @@
 html {
   background: var(--bg);
   scroll-behavior: smooth;
-  scrollbar-color: #2a2a2e transparent;
+  scrollbar-color: #24364f transparent;
 }
 
 body {
@@ -80,7 +83,7 @@ kbd {
   padding: 0.18rem 0.45rem;
   border-radius: 7px;
   border: 1px solid var(--line-strong);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(160, 200, 255, 0.08);
   color: var(--muted);
   white-space: nowrap;
 }
@@ -121,6 +124,21 @@ kbd {
   margin-inline: auto;
 }
 
+/* ---------- ambient light behind the glass ---------- */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 48% at 18% -4%, rgba(37, 99, 235, 0.5), transparent 70%),
+    radial-gradient(42% 40% at 88% 12%, rgba(56, 189, 248, 0.26), transparent 70%),
+    radial-gradient(60% 50% at 50% 108%, rgba(29, 78, 216, 0.38), transparent 70%),
+    radial-gradient(30% 30% at 70% 55%, rgba(99, 102, 241, 0.16), transparent 70%);
+}
+
 /* ---------- background dot field ---------- */
 
 #field {
@@ -141,9 +159,9 @@ kbd {
   top: 0;
   z-index: 20;
   border-bottom: 1px solid var(--line);
-  background: rgba(0, 0, 0, 0.72);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  background: rgba(8, 16, 32, 0.5);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
 }
 
 .top-in {
@@ -189,12 +207,12 @@ kbd {
 
 .nav a:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(160, 200, 255, 0.1);
 }
 
 .nav a[aria-current="page"] {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(160, 200, 255, 0.14);
 }
 
 .kbtn {
@@ -205,7 +223,7 @@ kbd {
   padding: 0 0.5rem 0 0.75rem;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(160, 200, 255, 0.06);
   color: var(--muted);
   font: inherit;
   font-size: 0.88rem;
@@ -256,10 +274,10 @@ kbd {
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(229, 72, 77, 0.55);
+    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.55);
   }
   100% {
-    box-shadow: 0 0 0 0.8rem rgba(229, 72, 77, 0);
+    box-shadow: 0 0 0 0.8rem rgba(var(--accent-rgb), 0);
   }
 }
 
@@ -271,8 +289,8 @@ kbd {
   line-height: 0.95;
   color: #fff;
   text-shadow:
-    0 0 18px rgba(255, 255, 255, 0.45),
-    0 0 70px rgba(255, 255, 255, 0.22);
+    0 0 18px rgba(170, 210, 255, 0.6),
+    0 0 80px rgba(77, 163, 255, 0.45);
 }
 
 .underline {
@@ -296,10 +314,12 @@ kbd {
   padding: 0.75rem 1.1rem 0.75rem 0.75rem;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 30px 80px -30px rgba(229, 72, 77, 0.45);
+    var(--glass-edge),
+    0 30px 80px -30px rgba(var(--accent-rgb), 0.6);
   color: var(--muted);
   font: inherit;
   font-size: 1.08rem;
@@ -311,10 +331,10 @@ kbd {
 }
 
 .searchbar:hover {
-  border-color: rgba(255, 255, 255, 0.36);
+  border-color: rgba(200, 228, 255, 0.5);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 30px 90px -26px rgba(229, 72, 77, 0.65);
+    var(--glass-edge),
+    0 30px 90px -24px rgba(var(--accent-rgb), 0.8);
 }
 
 .searchbar b {
@@ -337,8 +357,8 @@ kbd {
   width: 2.9rem;
   height: 2.9rem;
   border-radius: 50%;
-  border: 1px solid rgba(229, 72, 77, 0.5);
-  background: radial-gradient(circle at 50% 30%, rgba(229, 72, 77, 0.35), rgba(229, 72, 77, 0.08));
+  border: 1px solid rgba(var(--accent-rgb), 0.5);
+  background: radial-gradient(circle at 50% 30%, rgba(var(--accent-rgb), 0.35), rgba(var(--accent-rgb), 0.08));
   color: #fff;
 }
 
@@ -355,9 +375,13 @@ kbd {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background:
-    radial-gradient(420px circle at var(--mx, 50%) var(--my, -40%), rgba(229, 72, 77, 0.16), transparent 60%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    radial-gradient(420px circle at var(--mx, 50%) var(--my, -40%), rgba(var(--accent-rgb), 0.26), transparent 60%),
+    var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow:
+    var(--glass-edge),
+    0 24px 60px -34px rgba(0, 12, 40, 0.9);
   transition:
     border-color 0.2s ease,
     transform 0.2s ease;
@@ -400,8 +424,8 @@ a.card:hover h2 .arrow,
   width: 7rem;
   height: auto;
   margin: 0 auto;
-  color: #cfcfd4;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.18));
+  color: #d6e6ff;
+  filter: drop-shadow(0 0 12px rgba(120, 180, 255, 0.45));
 }
 
 .tile h2 {
@@ -449,8 +473,12 @@ a.card:hover h2 .arrow,
   padding: 2rem;
   border: 1px solid var(--line);
   border-radius: calc(var(--radius) + 4px);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01)), rgba(6, 6, 7, 0.82);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow:
+    var(--glass-edge),
+    0 30px 80px -40px rgba(0, 12, 40, 0.9);
 }
 
 .panel-head {
@@ -477,7 +505,7 @@ a.card:hover h2 .arrow,
   padding: 0.35rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(160, 200, 255, 0.06);
   color: var(--muted);
   font: inherit;
   font-size: 0.85rem;
@@ -526,7 +554,7 @@ button.chip[aria-pressed="true"]:hover {
 
 .row:hover,
 .row:target {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(160, 200, 255, 0.07);
 }
 
 .row:target {
@@ -618,7 +646,7 @@ button.chip[aria-pressed="true"]:hover {
   font-size: clamp(2.6rem, 7vw, 4.4rem);
   font-weight: 800;
   letter-spacing: -0.055em;
-  text-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+  text-shadow: 0 0 44px rgba(120, 180, 255, 0.4);
 }
 
 .page-head .lede {
@@ -657,7 +685,7 @@ button.chip[aria-pressed="true"]:hover {
 .prose {
   font-size: 1.08rem;
   line-height: 1.75;
-  color: #d6d6da;
+  color: #d5e0f2;
 }
 
 .article .prose {
@@ -681,7 +709,7 @@ button.chip[aria-pressed="true"]:hover {
 .prose a {
   color: var(--accent-text);
   text-decoration: underline;
-  text-decoration-color: rgba(255, 133, 137, 0.4);
+  text-decoration-color: rgba(156, 203, 255, 0.45);
   text-underline-offset: 0.2em;
 }
 
@@ -695,7 +723,7 @@ button.chip[aria-pressed="true"]:hover {
   padding: 0.12em 0.4em;
   border-radius: 6px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(160, 200, 255, 0.09);
 }
 
 .prose pre {
@@ -786,15 +814,18 @@ button.chip[aria-pressed="true"]:hover {
   padding: 0;
   border: 1px solid var(--line-strong);
   border-radius: 18px;
-  background: #0b0b0c;
+  background: rgba(14, 26, 48, 0.72);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  backdrop-filter: blur(28px) saturate(150%);
   color: var(--text);
   box-shadow:
-    0 40px 120px -20px rgba(0, 0, 0, 0.9),
-    0 0 90px -30px rgba(229, 72, 77, 0.55);
+    var(--glass-edge),
+    0 40px 120px -20px rgba(0, 8, 30, 0.9),
+    0 0 90px -30px rgba(var(--accent-rgb), 0.7);
 }
 
 .palette::backdrop {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(3, 8, 18, 0.55);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
@@ -854,7 +885,7 @@ button.chip[aria-pressed="true"]:hover {
 
 #palette-list li[aria-selected="true"] a,
 #palette-list li a:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(160, 200, 255, 0.12);
 }
 
 #palette-list li[aria-selected="true"] a {
@@ -966,5 +997,17 @@ button.chip[aria-pressed="true"]:hover {
 
   .searchbar {
     font-size: 0.98rem;
+  }
+}
+
+/* ---------- fallback without backdrop blur ---------- */
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .top,
+  .panel,
+  .card,
+  .searchbar,
+  .palette {
+    background: rgba(12, 22, 42, 0.94);
   }
 }
