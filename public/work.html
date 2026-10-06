@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Manrope:wght@600;700;800&display=swap">
-<link rel="stylesheet" href="/styles.css?v=2d08be4b">
+<link rel="stylesheet" href="/styles.css?v=6db72aff">
 </head>
 <body class="">
 <canvas id="field" aria-hidden="true"></canvas>
@@ -28,29 +28,38 @@
   <h1>work</h1>
   <p class="lede">Everything built, designed, or tried out, newest first.</p>
 </section>
-<section class="wrap panel" aria-label="Projects">
-  <div class="panel-head">
-    <h2 class="sr">Projects</h2>
-    <div class="filters" role="group" aria-label="Filter projects"><button type="button" class="chip" data-filter="all" aria-pressed="true">all</button><button type="button" class="chip" data-filter="build" aria-pressed="false">build</button><button type="button" class="chip" data-filter="design" aria-pressed="false">design</button><button type="button" class="chip" data-filter="experiment" aria-pressed="false">experiment</button></div>
-  </div>
-  <ul class="rows" id="rows"><li class="row" id="project-one" data-tag="design">
-      <div class="row-main"><h3>Project one</h3><p>One line on what this project is and why it matters.</p></div>
-      <span class="chip chip-static">design</span>
-      <span class="row-year">2026</span>
-    </li><li class="row" id="project-two" data-tag="build">
-      <div class="row-main"><h3>Project two</h3><p>One line on what this project is and why it matters.</p></div>
-      <span class="chip chip-static">build</span>
-      <span class="row-year">2026</span>
-    </li><li class="row" id="project-three" data-tag="experiment">
-      <div class="row-main"><h3>Project three</h3><p>One line on what this project is and why it matters.</p></div>
-      <span class="chip chip-static">experiment</span>
-      <span class="row-year">2025</span>
-    </li><li class="row" id="project-four" data-tag="build">
-      <div class="row-main"><h3>Project four</h3><p>One line on what this project is and why it matters.</p></div>
-      <span class="chip chip-static">build</span>
-      <span class="row-year">2025</span>
-    </li></ul>
-  <p class="rows-empty" id="rows-empty" hidden>No projects in this category yet.</p>
+<section class="wrap" aria-label="Projects">
+  <div class="filters" role="group" aria-label="Filter projects"><button type="button" class="chip" data-filter="all" aria-pressed="true">all</button><button type="button" class="chip" data-filter="build" aria-pressed="false">build</button><button type="button" class="chip" data-filter="design" aria-pressed="false">design</button><button type="button" class="chip" data-filter="experiment" aria-pressed="false">experiment</button></div>
+  <div class="proj-grid" id="projects"><article class="card proj" id="project-one" data-tag="design">
+      <div class="proj-cover"><img src="/images/cover-1.svg" alt="" loading="lazy" width="640" height="400"></div>
+      <div class="proj-body">
+        <div class="proj-meta"><span class="chip chip-static">design</span><span class="proj-year">2026</span></div>
+        <h3>Project one</h3>
+        <p>One line on what this project is and why it matters.</p>
+      </div>
+    </article><article class="card proj" id="project-two" data-tag="build">
+      <div class="proj-cover"><img src="/images/cover-2.svg" alt="" loading="lazy" width="640" height="400"></div>
+      <div class="proj-body">
+        <div class="proj-meta"><span class="chip chip-static">build</span><span class="proj-year">2026</span></div>
+        <h3>Project two</h3>
+        <p>One line on what this project is and why it matters.</p>
+      </div>
+    </article><article class="card proj" id="project-three" data-tag="experiment">
+      <div class="proj-cover"><img src="/images/cover-3.svg" alt="" loading="lazy" width="640" height="400"></div>
+      <div class="proj-body">
+        <div class="proj-meta"><span class="chip chip-static">experiment</span><span class="proj-year">2025</span></div>
+        <h3>Project three</h3>
+        <p>One line on what this project is and why it matters.</p>
+      </div>
+    </article><article class="card proj" id="project-four" data-tag="build">
+      <div class="proj-cover"><img src="/images/cover-4.svg" alt="" loading="lazy" width="640" height="400"></div>
+      <div class="proj-body">
+        <div class="proj-meta"><span class="chip chip-static">build</span><span class="proj-year">2025</span></div>
+        <h3>Project four</h3>
+        <p>One line on what this project is and why it matters.</p>
+      </div>
+    </article></div>
+  <p class="rows-empty" id="projects-empty" hidden>No projects in this category yet.</p>
 </section>
 
 </main>
@@ -68,6 +77,6 @@
   </div>
 </dialog>
 <script>window.SITE_INDEX = [{"t": "Home", "k": "page", "u": "/"}, {"t": "Work", "k": "page", "u": "/work"}, {"t": "Writing", "k": "page", "u": "/writing"}, {"t": "About", "k": "page", "u": "/about"}, {"t": "Project one", "k": "project", "u": "/work#project-one"}, {"t": "Project two", "k": "project", "u": "/work#project-two"}, {"t": "Project three", "k": "project", "u": "/work#project-three"}, {"t": "Project four", "k": "project", "u": "/work#project-four"}, {"t": "First post", "k": "post", "u": "/writing/first-post"}];</script>
-<script src="/site.js?v=2d08be4b" defer></script>
+<script src="/site.js?v=6db72aff" defer></script>
 </body>
 </html>

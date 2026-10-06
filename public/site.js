@@ -1,21 +1,18 @@
-// neural notes: background field, search palette, project filters, reveal on scroll.
+// neural notes: quiet background field, search palette, project filters, reveal on scroll.
 (function () {
   "use strict";
 
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------- background dot field ---------- */
+  /* ---------- background dot field: still by default, lit near the pointer ---------- */
   (function field() {
     var canvas = document.getElementById("field");
     if (!canvas || !canvas.getContext) return;
     var ctx = canvas.getContext("2d");
-    var GAP = 26;
+    var GAP = 28;
     var w = 0, h = 0, cols = 0, rows = 0, dpr = 1;
     var mouse = { x: -9999, y: -9999 };
-    var signals = [];
-    var running = false;
-    var last = 0;
-    var nextSignal = 0;
+    var queued = false;
 
     // Colours come from the stylesheet tokens, so a recolour needs no script change.
     function token(name, fallback) {
@@ -23,10 +20,39 @@
       var parts = v.split(",").map(function (n) { return parseInt(n, 10); });
       return parts.length === 3 && parts.every(function (n) { return n >= 0 && n <= 255; }) ? parts : fallback;
     }
-    var TINT = token("--tint-rgb", [160, 200, 255]);
-    var ACCENT = token("--accent-rgb", [77, 163, 255]);
+    var TINT = token("--tint-rgb", [150, 182, 255]);
+    var ACCENT = token("--accent-rgb", [56, 128, 255]);
     var HOT = ACCENT.map(function (c) { return Math.round(c + (255 - c) * 0.45); });
-    var BASE = "rgba(" + TINT.join(",") + ",0.2)";
+    var BASE = "rgba(" + TINT.join(",") + ",0.16)";
+
+    function draw() {
+      queued = false;
+      ctx.clearRect(0, 0, w, h);
+      var R = 150;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var x = c * GAP, y = r * GAP;
+          var dx = x - mouse.x, dy = y - mouse.y;
+          var d2 = dx * dx + dy * dy;
+          if (d2 < R * R) {
+            var k = 1 - Math.sqrt(d2) / R;
+            ctx.fillStyle = "rgba(" + Math.round(TINT[0] + (HOT[0] - TINT[0]) * k) + "," + Math.round(TINT[1] + (HOT[1] - TINT[1]) * k) + "," + Math.round(TINT[2] + (HOT[2] - TINT[2]) * k) + "," + (0.16 + k * 0.7) + ")";
+            ctx.beginPath();
+            ctx.arc(x, y, 1 + k * 1.2, 0, 6.2832);
+            ctx.fill();
+          } else {
+            ctx.fillStyle = BASE;
+            ctx.fillRect(x - 0.6, y - 0.6, 1.2, 1.2);
+          }
+        }
+      }
+    }
+
+    function queue() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(draw);
+    }
 
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -37,103 +63,22 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       cols = Math.ceil(w / GAP) + 1;
       rows = Math.ceil(h / GAP) + 1;
-      draw(performance.now());
-    }
-
-    // A signal is a short path that hops between neighbouring dots.
-    function spawn(now) {
-      var c = Math.floor(Math.random() * cols);
-      var r = Math.floor(Math.random() * Math.max(1, rows * 0.7));
-      var path = [[c, r]];
-      var len = 5 + Math.floor(Math.random() * 7);
-      var dir = Math.random() < 0.5 ? 1 : -1;
-      for (var i = 0; i < len; i++) {
-        var step = Math.random();
-        if (step < 0.55) c += dir;
-        else if (step < 0.8) r += 1;
-        else r -= 1;
-        path.push([c, r]);
-      }
-      signals.push({ path: path, start: now, dur: len * 110 });
-    }
-
-    function draw(now) {
-      ctx.clearRect(0, 0, w, h);
-      var R = 150;
-      for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < cols; c++) {
-          var x = c * GAP, y = r * GAP;
-          var dx = x - mouse.x, dy = y - mouse.y;
-          var d2 = dx * dx + dy * dy;
-          if (d2 < R * R) {
-            var k = 1 - Math.sqrt(d2) / R;
-            ctx.fillStyle = "rgba(" + Math.round(TINT[0] + (HOT[0] - TINT[0]) * k) + "," + Math.round(TINT[1] + (HOT[1] - TINT[1]) * k) + "," + Math.round(TINT[2] + (HOT[2] - TINT[2]) * k) + "," + (0.2 + k * 0.72) + ")";
-            ctx.beginPath();
-            ctx.arc(x, y, 1 + k * 1.3, 0, 6.2832);
-            ctx.fill();
-          } else {
-            ctx.fillStyle = BASE;
-            ctx.fillRect(x - 0.6, y - 0.6, 1.2, 1.2);
-          }
-        }
-      }
-      for (var s = signals.length - 1; s >= 0; s--) {
-        var sig = signals[s];
-        var t = (now - sig.start) / sig.dur;
-        if (t > 1.6) { signals.splice(s, 1); continue; }
-        var head = t * (sig.path.length - 1);
-        for (var i = 0; i < sig.path.length; i++) {
-          var age = head - i;
-          if (age < 0 || age > 4) continue;
-          var a = 1 - age / 4;
-          var px = sig.path[i][0] * GAP, py = sig.path[i][1] * GAP;
-          if (i > 0 && age < 3) {
-            ctx.strokeStyle = "rgba(" + ACCENT.join(",") + "," + a * 0.55 + ")";
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(sig.path[i - 1][0] * GAP, sig.path[i - 1][1] * GAP);
-            ctx.lineTo(px, py);
-            ctx.stroke();
-          }
-          ctx.fillStyle = "rgba(" + HOT.join(",") + "," + a + ")";
-          ctx.beginPath();
-          ctx.arc(px, py, 1.2 + a * 1.4, 0, 6.2832);
-          ctx.fill();
-        }
-      }
-    }
-
-    function frame(now) {
-      if (!running) return;
-      if (now - last > 33) {
-        if (now > nextSignal) {
-          spawn(now);
-          nextSignal = now + 500 + Math.random() * 900;
-        }
-        draw(now);
-        last = now;
-      }
-      requestAnimationFrame(frame);
-    }
-
-    function start() {
-      if (reduce || running || document.hidden) return;
-      running = true;
-      requestAnimationFrame(frame);
+      queue();
     }
 
     window.addEventListener("resize", resize);
-    window.addEventListener("pointermove", function (e) {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    }, { passive: true });
-    document.addEventListener("pointerleave", function () { mouse.x = mouse.y = -9999; });
-    document.addEventListener("visibilitychange", function () {
-      if (document.hidden) running = false;
-      else start();
-    });
+    if (!reduce) {
+      window.addEventListener("pointermove", function (e) {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        queue();
+      }, { passive: true });
+      document.addEventListener("pointerleave", function () {
+        mouse.x = mouse.y = -9999;
+        queue();
+      });
+    }
     resize();
-    start();
   })();
 
   /* ---------- reveal on load and scroll ---------- */
@@ -177,9 +122,9 @@
   /* ---------- project filters ---------- */
   (function filters() {
     var buttons = document.querySelectorAll("[data-filter]");
-    var rows = document.querySelectorAll("#rows .row");
-    var empty = document.getElementById("rows-empty");
-    if (!buttons.length || !rows.length) return;
+    var items = document.querySelectorAll("#projects .proj");
+    var empty = document.getElementById("projects-empty");
+    if (!buttons.length || !items.length) return;
     Array.prototype.forEach.call(buttons, function (btn) {
       btn.addEventListener("click", function () {
         var tag = btn.getAttribute("data-filter");
@@ -187,9 +132,9 @@
         Array.prototype.forEach.call(buttons, function (b) {
           b.setAttribute("aria-pressed", b === btn ? "true" : "false");
         });
-        Array.prototype.forEach.call(rows, function (row) {
-          var match = tag === "all" || row.getAttribute("data-tag") === tag;
-          row.hidden = !match;
+        Array.prototype.forEach.call(items, function (item) {
+          var match = tag === "all" || item.getAttribute("data-tag") === tag;
+          item.hidden = !match;
           if (match) shown++;
         });
         if (empty) empty.hidden = shown > 0;
