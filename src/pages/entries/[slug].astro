@@ -1,0 +1,79 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { getEntries, TYPES, formatDate, isoDate, slugify, type Entry } from "../../lib/site";
+import { ARROW } from "../../components/Icons";
+
+export async function getStaticPaths() {
+  const entries = await getEntries();
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: Entry;
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+const topics = d.topics.map((t) => t.trim().toLowerCase());
+const safeUrl = d.source.url && /^https?:\/\//i.test(d.source.url) ? d.source.url : undefined;
+const hasSource = Boolean(d.source.citation || safeUrl);
+---
+
+<Base title={d.title} description={d.summary || undefined} active="library">
+  <article class="wrap article" data-type={d.type}>
+    <a class="back" href="/library"><Fragment set:html={ARROW} /> library</a>
+    <div class="entry-top">
+      <span class="badge">{TYPES[d.type].label}</span>
+      <time class="entry-date" datetime={isoDate(d.date)}>{formatDate(d.date)}</time>
+    </div>
+    <h1>{d.title}</h1>
+    {d.summary && <p class="standfirst">{d.summary}</p>}
+    {
+      topics.length > 0 && (
+        <div class="article-topics">
+          {topics.map((t) => (
+            <a class="chip" href={`/library?topic=${slugify(t)}`}>
+              {t}
+            </a>
+          ))}
+        </div>
+      )
+    }
+    {
+      d.cover && (
+        <div class="article-cover">
+          <img src={d.cover} alt="" />
+        </div>
+      )
+    }
+    {
+      d.findings.length > 0 && (
+        <section class="card box findings" aria-labelledby="h-findings">
+          <h2 class="box-label" id="h-findings">key findings</h2>
+          <ul>
+            {d.findings.map((f) => (
+              <li>{f}</li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+    <div class="prose">
+      <Content />
+    </div>
+    {
+      hasSource && (
+        <section class="card box sourcebox" aria-labelledby="h-source">
+          <h2 class="box-label" id="h-source">source</h2>
+          {d.source.citation && <p>{d.source.citation}</p>}
+          {safeUrl && (
+            <a class="btn btn-ghost" href={safeUrl} rel="noopener">
+              read the original <Fragment set:html={ARROW} />
+            </a>
+          )}
+        </section>
+      )
+    }
+  </article>
+</Base>

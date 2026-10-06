@@ -1,0 +1,110 @@
+---
+import Base from "../layouts/Base.astro";
+import EntryCard from "../components/EntryCard.astro";
+import Bio from "../components/Bio.astro";
+import { site, getEntries, topicList, TYPES, type EntryType } from "../lib/site";
+import { ARROW, SEARCH } from "../components/Icons";
+
+const entries = await getEntries();
+const topics = topicList(entries);
+const latest = entries.slice(0, 3);
+const kinds = (Object.keys(TYPES) as EntryType[]).map((k) => ({
+  key: k,
+  label: TYPES[k].plural,
+  count: entries.filter((e) => e.data.type === k).length,
+}));
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+---
+
+<Base>
+  <section class="hero wrap">
+    <p class="eyebrow reveal">
+      <span class="pulse" aria-hidden="true"></span>{plural(entries.length, "entry", "entries")}
+      <i>/</i>
+      {plural(topics.length, "topic", "topics")}
+    </p>
+    <h1 class="wordmark reveal">{site.name}<span class="dot" aria-hidden="true"></span></h1>
+    <p class="lede reveal">{site.tagline}</p>
+    <button class="searchbar reveal" type="button" data-open-palette>
+      <span class="searchbar-icon"><Fragment set:html={SEARCH} /></span>
+      <span class="searchbar-text"><b>search</b> studies, research, and notes</span>
+      <kbd>Ctrl K</kbd>
+    </button>
+    {
+      topics.length > 0 && (
+        <div class="topic-row reveal">
+          {topics.slice(0, 8).map((t) => (
+            <a class="chip" href={`/library?topic=${t.slug}`}>
+              {t.label} <small>{t.count}</small>
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </section>
+
+  {
+    latest.length > 0 && (
+      <section class="wrap section reveal" aria-labelledby="h-latest">
+        <div class="section-head">
+          <h2 id="h-latest">latest</h2>
+          <a class="more" href="/library">
+            the whole library <Fragment set:html={ARROW} />
+          </a>
+        </div>
+        <div class:list={["entry-grid", { "entry-grid-home": latest.length === 3 }]}>
+          {latest.map((e, i) => (
+            <EntryCard entry={e} lead={latest.length === 3 && i === 0} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="wrap section reveal" aria-labelledby="h-kinds">
+    <div class="section-head">
+      <h2 id="h-kinds">what is here</h2>
+    </div>
+    <div class="kinds">
+      {
+        kinds.map((k) => (
+          <a class="card kind" href={`/library?type=${k.key}`} data-type={k.key}>
+            <span class="kind-label">{k.label}</span>
+            <span class="kind-count">{k.count}</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    site.author && site.bio && (
+      <section class="wrap section reveal" aria-labelledby="h-about">
+        <div class="section-head">
+          <h2 id="h-about">about</h2>
+          <a class="more" href="/about">
+            more <Fragment set:html={ARROW} />
+          </a>
+        </div>
+        <Bio />
+      </section>
+    )
+  }
+
+  {
+    site.contact.length > 0 && (
+      <section class="wrap section contact reveal" aria-labelledby="h-contact">
+        <h2 id="h-contact">get in touch</h2>
+        <div class="contact-links">
+          {site.contact.map((c) => (
+            <a class="btn btn-ghost" href={c.url} rel="me noopener">
+              {c.label}
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <div class="closing" aria-hidden="true"></div>
+</Base>

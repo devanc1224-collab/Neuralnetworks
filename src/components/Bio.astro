@@ -1,0 +1,21 @@
+---
+import { site } from "../lib/site";
+const initials = (site.author || site.name)
+  .split(/\s+/)
+  .map((w) => w[0])
+  .join("")
+  .slice(0, 2)
+  .toUpperCase();
+---
+
+{
+  site.author && site.bio && (
+    <div class="card bio">
+      <div class="avatar" aria-hidden="true">{initials}</div>
+      <div class="bio-text">
+        <h3>{site.author}</h3>
+        <p>{site.bio}</p>
+      </div>
+    </div>
+  )
+}

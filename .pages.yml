@@ -1,0 +1,130 @@
+# Editor configuration for Pages CMS (app.pagescms.org).
+media:
+  input: public/images/uploads
+  output: /images/uploads
+  rename: safe
+  categories: [image]
+
+content:
+  - name: entries
+    label: Entries
+    type: collection
+    path: src/content/entries
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    view:
+      fields: [title, type, date, draft]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+        options:
+          maxlength: 140
+      - name: type
+        label: Type
+        type: select
+        required: true
+        default: study
+        description: Study summary is for published papers. Original research is for your own work. Note is for anything shorter.
+        options:
+          values:
+            - name: study
+              label: Study summary
+            - name: research
+              label: Original research
+            - name: note
+              label: Note
+      - name: date
+        label: Date
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: summary
+        label: Summary
+        type: text
+        required: true
+        description: One or two sentences shown on cards and at the top of the entry.
+        options:
+          maxlength: 300
+      - name: topics
+        label: Topics
+        type: string
+        list: true
+        description: One topic per line, for example sleep or neuroscience. Reuse the same wording so entries group together.
+      - name: findings
+        label: Key findings
+        type: string
+        list: true
+        description: Optional. One finding per line, in plain language.
+      - name: source
+        label: Source
+        type: object
+        description: Optional. For study summaries, where the original paper can be found.
+        fields:
+          - name: citation
+            label: Citation
+            type: text
+            description: Authors, title, journal, and year.
+          - name: url
+            label: Link
+            type: string
+            description: Full web address of the paper, starting with https://
+      - name: cover
+        label: Cover image
+        type: image
+        description: Optional. A figure, chart, or photo for this entry.
+      - name: draft
+        label: Draft
+        type: boolean
+        default: false
+        description: Turn on to keep this entry off the site until it is ready.
+      - name: body
+        label: Body
+        type: rich-text
+
+  - name: site
+    label: Site settings
+    type: file
+    path: src/data/site.json
+    format: json
+    operations:
+      delete: false
+    fields:
+      - name: name
+        label: Site name
+        type: string
+      - name: tagline
+        label: Tagline
+        type: string
+        description: The line under the site name on the homepage.
+      - name: about
+        label: About the site
+        type: text
+        description: Shown on the About page.
+      - name: author
+        label: Your name
+        type: string
+        description: Optional. Shown with your bio.
+      - name: bio
+        label: Bio
+        type: text
+        description: Optional. Two or three sentences about you.
+      - name: contact
+        label: Contact links
+        type: object
+        list: true
+        description: Optional. Each link needs a label and a full address. Use mailto:you@example.com for email.
+        fields:
+          - name: label
+            label: Label
+            type: string
+          - name: url
+            label: Address
+            type: string

@@ -1,0 +1,13 @@
+---
+import Base from "../layouts/Base.astro";
+import { ARROW } from "../components/Icons";
+---
+
+<Base title="Page not found" description="Page not found.">
+  <section class="wrap nf">
+    <p class="nf-code">404</p>
+    <h1>That page does not exist.</h1>
+    <p class="lede">It may have moved, or the link may be wrong.</p>
+    <a class="btn" href="/">back to home <Fragment set:html={ARROW} /></a>
+  </section>
+</Base>

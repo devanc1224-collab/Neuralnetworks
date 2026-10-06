@@ -1,0 +1,264 @@
+---
+import "../styles/global.css";
+import { site, getEntries, topicList, TYPES, entryUrl } from "../lib/site";
+import { ARROW, SEARCH } from "../components/Icons";
+
+interface Props {
+  title?: string;
+  description?: string;
+  active?: "library" | "about" | "";
+}
+const { title, description = site.tagline, active = "" } = Astro.props;
+const pageTitle = title ? `${title} | ${site.name}` : site.name;
+
+const entries = await getEntries();
+const index = [
+  { t: "Home", k: "page", u: "/" },
+  { t: "Library", k: "page", u: "/library" },
+  { t: "About", k: "page", u: "/about" },
+  ...entries.map((e) => ({
+    t: e.data.title,
+    k: TYPES[e.data.type].label,
+    u: entryUrl(e),
+    x: [e.data.summary, ...e.data.topics].join(" ").toLowerCase(),
+  })),
+  ...topicList(entries).map((t) => ({ t: t.label, k: "topic", u: `/library?topic=${t.slug}` })),
+];
+const nav = [
+  { key: "library", href: "/library" },
+  { key: "about", href: "/about" },
+];
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#070b10" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Manrope:wght@600;700;800&display=swap"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="top">
+      <div class="wrap top-in">
+        <a class="mark" href="/" aria-label={`${site.name}, home`}>{site.name}<span class="dot" aria-hidden="true"></span></a>
+        <nav class="nav" aria-label="Main">
+          {nav.map((n) => <a href={n.href} aria-current={active === n.key ? "page" : undefined}>{n.key}</a>)}
+        </nav>
+        <button class="kbtn" type="button" data-open-palette aria-label="Search the site">
+          <Fragment set:html={SEARCH} /><span class="kbtn-label">search</span><kbd>Ctrl K</kbd>
+        </button>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="foot">
+      <div class="wrap foot-in">
+        <span>&copy; {year} {site.name}</span>
+        <nav aria-label="Footer">
+          <a href="/library">library</a>
+          <a href="/about">about</a>
+        </nav>
+      </div>
+    </footer>
+    <dialog class="palette" id="palette" aria-label="Search the site">
+      <div class="palette-box">
+        <div class="palette-in">
+          <Fragment set:html={SEARCH} />
+          <input
+            id="palette-input"
+            type="text"
+            placeholder="Search entries, topics, and pages"
+            autocomplete="off"
+            spellcheck="false"
+            aria-controls="palette-list"
+          />
+          <kbd>Esc</kbd>
+        </div>
+        <ul id="palette-list" role="listbox" aria-label="Results"></ul>
+        <p class="palette-empty" id="palette-empty" hidden>Nothing matches that search.</p>
+      </div>
+    </dialog>
+    <script type="application/json" id="site-index" set:html={JSON.stringify(index)} />
+    <script>
+      // neural notes: search palette, library filters, reveal on scroll, card light.
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      /* ---------- reveal on load and scroll ---------- */
+      (() => {
+        const els = [...document.querySelectorAll<HTMLElement>(".reveal")];
+        if (!els.length) return;
+        if (reduce || !("IntersectionObserver" in window)) {
+          els.forEach((el) => el.classList.add("in"));
+          return;
+        }
+        document.querySelectorAll<HTMLElement>(".hero .reveal").forEach((el, i) => el.style.setProperty("--i", String(i)));
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const en of entries) {
+              if (en.isIntersecting) {
+                en.target.classList.add("in");
+                io.unobserve(en.target);
+              }
+            }
+          },
+          { rootMargin: "0px 0px -8% 0px" },
+        );
+        els.forEach((el) => io.observe(el));
+      })();
+
+      /* ---------- light that follows the pointer on cards ---------- */
+      document.querySelectorAll<HTMLElement>(".card").forEach((card) => {
+        card.addEventListener("pointermove", (e) => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty("--mx", `${e.clientX - r.left}px`);
+          card.style.setProperty("--my", `${e.clientY - r.top}px`);
+        });
+        card.addEventListener("pointerleave", () => {
+          card.style.removeProperty("--mx");
+          card.style.removeProperty("--my");
+        });
+      });
+
+      /* ---------- library filters: type and topic, kept in the address bar ---------- */
+      (() => {
+        const grid = document.getElementById("library");
+        if (!grid) return;
+        const items = [...grid.querySelectorAll<HTMLElement>(".entry")];
+        const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-filter-group]")];
+        const empty = document.getElementById("library-empty");
+        const count = document.getElementById("library-count");
+        const params = new URLSearchParams(location.search);
+        const state: Record<string, string> = { type: params.get("type") || "all", topic: params.get("topic") || "all" };
+        // ignore values that match no button, so a stale link still shows everything
+        for (const g of Object.keys(state)) {
+          if (!buttons.some((b) => b.dataset.filterGroup === g && b.dataset.filter === state[g])) state[g] = "all";
+        }
+
+        const apply = () => {
+          let shown = 0;
+          for (const el of items) {
+            const okType = state.type === "all" || el.dataset.type === state.type;
+            const okTopic = state.topic === "all" || (el.dataset.topics || "").split(" ").includes(state.topic);
+            el.hidden = !(okType && okTopic);
+            if (!el.hidden) shown++;
+          }
+          for (const b of buttons) b.setAttribute("aria-pressed", String(state[b.dataset.filterGroup!] === b.dataset.filter));
+          if (empty) empty.hidden = shown > 0;
+          if (count) count.textContent = `${shown} ${shown === 1 ? "entry" : "entries"}`;
+          const next = new URLSearchParams();
+          if (state.type !== "all") next.set("type", state.type);
+          if (state.topic !== "all") next.set("topic", state.topic);
+          const q = next.toString();
+          history.replaceState(null, "", q ? `${location.pathname}?${q}` : location.pathname);
+        };
+
+        for (const b of buttons) {
+          b.addEventListener("click", () => {
+            state[b.dataset.filterGroup!] = b.dataset.filter!;
+            apply();
+          });
+        }
+        apply();
+      })();
+
+      /* ---------- search palette ---------- */
+      (() => {
+        type Item = { t: string; k: string; u: string; x?: string };
+        const dialog = document.getElementById("palette") as HTMLDialogElement | null;
+        const input = document.getElementById("palette-input") as HTMLInputElement | null;
+        const list = document.getElementById("palette-list");
+        const empty = document.getElementById("palette-empty");
+        const data = document.getElementById("site-index");
+        if (!dialog || !input || !list || !empty || !data || typeof dialog.showModal !== "function") return;
+        let items: Item[] = [];
+        try {
+          items = JSON.parse(data.textContent || "[]");
+        } catch {
+          items = [];
+        }
+        let selected = 0;
+        let results: Item[] = [];
+
+        const render = () => {
+          const words = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+          results = items.filter((it) => {
+            const hay = `${it.t} ${it.k} ${it.x || ""}`.toLowerCase();
+            return words.every((w) => hay.includes(w));
+          });
+          if (selected >= results.length) selected = 0;
+          list.innerHTML = "";
+          results.slice(0, 40).forEach((it, i) => {
+            const li = document.createElement("li");
+            li.setAttribute("role", "option");
+            li.setAttribute("aria-selected", String(i === selected));
+            const a = document.createElement("a");
+            a.href = it.u;
+            a.textContent = it.t;
+            const kind = document.createElement("span");
+            kind.textContent = it.k;
+            a.appendChild(kind);
+            a.addEventListener("click", () => dialog.close());
+            li.appendChild(a);
+            list.appendChild(li);
+          });
+          empty.hidden = results.length > 0;
+        };
+
+        const open = () => {
+          if (dialog.open) return;
+          input.value = "";
+          selected = 0;
+          render();
+          dialog.showModal();
+          input.focus();
+        };
+
+        document.querySelectorAll("[data-open-palette]").forEach((btn) => btn.addEventListener("click", open));
+
+        document.addEventListener("keydown", (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+            e.preventDefault();
+            if (dialog.open) dialog.close();
+            else open();
+          }
+        });
+
+        input.addEventListener("input", () => {
+          selected = 0;
+          render();
+        });
+
+        input.addEventListener("keydown", (e) => {
+          const shown = Math.min(results.length, 40);
+          if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+            e.preventDefault();
+            if (!shown) return;
+            selected = (selected + (e.key === "ArrowDown" ? 1 : -1) + shown) % shown;
+            render();
+            list.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
+          } else if (e.key === "Enter" && results[selected]) {
+            e.preventDefault();
+            location.href = results[selected].u;
+          }
+        });
+
+        // a click on the dimmed area closes the palette
+        dialog.addEventListener("click", (e) => {
+          if (e.target === dialog) dialog.close();
+        });
+      })();
+    </script>
+  </body>
+</html>

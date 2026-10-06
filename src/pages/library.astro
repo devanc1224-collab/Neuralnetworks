@@ -1,0 +1,53 @@
+---
+import Base from "../layouts/Base.astro";
+import EntryCard from "../components/EntryCard.astro";
+import { getEntries, topicList, TYPES, type EntryType } from "../lib/site";
+
+const entries = await getEntries();
+const topics = topicList(entries);
+const types = (Object.keys(TYPES) as EntryType[]).filter((k) => entries.some((e) => e.data.type === k));
+---
+
+<Base title="Library" description="Every study summary, piece of original research, and note." active="library">
+  <section class="wrap page-head">
+    <h1>library</h1>
+    <p class="lede">Every study summary, piece of original research, and note, newest first.</p>
+  </section>
+  <section class="wrap" aria-label="Entries">
+    {
+      entries.length > 0 && (
+        <div class="filter-block">
+          <div class="filter-row" role="group" aria-label="Filter by type">
+            <span class="filter-label">type</span>
+            <button type="button" class="chip" data-filter-group="type" data-filter="all" aria-pressed="true">all</button>
+            {types.map((k) => (
+              <button type="button" class="chip" data-filter-group="type" data-filter={k} aria-pressed="false">
+                {TYPES[k].plural}
+              </button>
+            ))}
+          </div>
+          {topics.length > 0 && (
+            <div class="filter-row" role="group" aria-label="Filter by topic">
+              <span class="filter-label">topic</span>
+              <button type="button" class="chip" data-filter-group="topic" data-filter="all" aria-pressed="true">all</button>
+              {topics.map((t) => (
+                <button type="button" class="chip" data-filter-group="topic" data-filter={t.slug} aria-pressed="false">
+                  {t.label} <small>{t.count}</small>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+    }
+    <p class="result-count" id="library-count" aria-live="polite">
+      {entries.length} {entries.length === 1 ? "entry" : "entries"}
+    </p>
+    <div class="entry-grid" id="library">
+      {entries.map((e) => <EntryCard entry={e} />)}
+    </div>
+    <p class="rows-empty" id="library-empty" hidden={entries.length > 0}>
+      {entries.length > 0 ? "Nothing matches those filters yet." : "Nothing has been published yet."}
+    </p>
+  </section>
+</Base>

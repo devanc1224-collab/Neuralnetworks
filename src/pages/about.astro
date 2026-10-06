@@ -1,0 +1,34 @@
+---
+import Base from "../layouts/Base.astro";
+import Bio from "../components/Bio.astro";
+import { site } from "../lib/site";
+---
+
+<Base title="About" description={site.about || site.tagline} active="about">
+  <section class="wrap page-head">
+    <h1>about</h1>
+    <p class="lede">{site.tagline}</p>
+  </section>
+  <section class="wrap about-body">
+    <Bio />
+    <div class="prose">
+      {site.about && <p>{site.about}</p>}
+      {
+        site.contact.length > 0 && (
+          <>
+            <h2>contact</h2>
+            <ul>
+              {site.contact.map((c) => (
+                <li>
+                  <a href={c.url} rel="me noopener">
+                    {c.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        )
+      }
+    </div>
+  </section>
+</Base>
