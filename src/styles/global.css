@@ -2067,3 +2067,23 @@ main {
     top: -7rem;
   }
 }
+
+/* ---------- black ice: a fractured frozen surface behind everything ---------- */
+
+/* The image is fixed in place, so the glass cards blur it as the page scrolls past.
+   Its cracks are kept at a deep steel blue and a dark veil sits over it, which keeps
+   every line of text above the 4.5:1 contrast minimum. */
+body::before {
+  background:
+    var(--grain-soft),
+    radial-gradient(70% 55% at 10% -12%, var(--amb-1), transparent 72%),
+    radial-gradient(85% 55% at 50% 116%, var(--amb-3), transparent 74%),
+    linear-gradient(180deg, rgba(8, 14, 20, 0.14), rgba(7, 11, 16, 0.3) 70%),
+    url("/images/black-ice.webp") center / cover no-repeat,
+    #070b10;
+}
+
+/* small grey text sits directly on the ice now, so it is a step brighter */
+:root {
+  --muted: #c3d0dc;
+}
