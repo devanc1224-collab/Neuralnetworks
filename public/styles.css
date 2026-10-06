@@ -1,31 +1,34 @@
-/* neural notes: deep royal blue, frosted glass used sparingly, calm background */
+/* neural notes: steel-blue light through fluted glass, on near-black */
 
 :root {
-  /* colorway: change these tokens to recolor the whole site */
-  --bg: #040714;
-  --bg-top: #081230;
-  --panel-solid: #0a1228;
-  --tint-rgb: 150, 182, 255;
-  --accent-rgb: 56, 128, 255;
+  /* colorway: steel and cerulean blue on near-black, sampled from the reference designs (hue 205-208) */
+  --bg: #070b10;
+  --bg-top: #0a121a;
+  --panel-solid: #0d1823;
+  --tint-rgb: 160, 198, 230;
+  --accent-rgb: 87, 151, 207;
   --accent: rgb(var(--accent-rgb));
-  --accent-text: #9dc0ff;
-  --text: #eef2ff;
-  --muted: #a3b1d0;
-  --dim: #8493bb;
-  --amb-1: rgba(29, 78, 216, 0.56);
-  --amb-2: rgba(49, 92, 230, 0.3);
-  --amb-3: rgba(30, 58, 175, 0.48);
-  --amb-4: rgba(67, 56, 202, 0.2);
-  --orb-2-rgb: 79, 70, 229;
+  --accent-text: #a6cff1;
+  --deep-rgb: 18, 49, 76;
+  --light-rgb: 135, 172, 204;
+  --teal-rgb: 34, 137, 158;
+  --text: #f2f6fa;
+  --muted: #a9b9c8;
+  --dim: #8496a8;
+  --amb-1: rgba(var(--deep-rgb), 0.7);
+  --amb-2: rgba(45, 82, 112, 0.3);
+  --amb-3: rgba(var(--deep-rgb), 0.62);
+  --amb-4: rgba(var(--teal-rgb), 0.09);
+  --orb-2-rgb: var(--teal-rgb);
 
-  --line: rgba(var(--tint-rgb), 0.15);
-  --line-strong: rgba(var(--tint-rgb), 0.34);
-  --accent-soft: rgba(var(--accent-rgb), 0.16);
-  --glass: linear-gradient(180deg, rgba(var(--tint-rgb), 0.13), rgba(var(--tint-rgb), 0.045) 55%, rgba(var(--accent-rgb), 0.07));
-  --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0) 34%);
-  --glass-rim: linear-gradient(180deg, rgba(255, 255, 255, var(--rim, 0.42)), rgba(var(--tint-rgb), 0.1) 36%, rgba(var(--tint-rgb), 0.22));
-  --glass-blur: blur(30px) saturate(165%) brightness(1.06);
-  --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+  --line: rgba(var(--tint-rgb), 0.14);
+  --line-strong: rgba(var(--tint-rgb), 0.32);
+  --accent-soft: rgba(var(--accent-rgb), 0.18);
+  --glass: linear-gradient(180deg, rgba(var(--tint-rgb), 0.12), rgba(var(--tint-rgb), 0.04) 55%, rgba(var(--accent-rgb), 0.06));
+  --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 34%);
+  --glass-rim: linear-gradient(180deg, rgba(255, 255, 255, var(--rim, 0.4)), rgba(var(--tint-rgb), 0.1) 36%, rgba(var(--tint-rgb), 0.2));
+  --glass-blur: blur(30px) saturate(150%) brightness(1.05);
+  --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --grain-soft: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --radius: 20px;
@@ -68,7 +71,7 @@ main {
 
 ::selection {
   background: var(--accent);
-  color: #fff;
+  color: #04101a;
 }
 
 a {
@@ -133,7 +136,7 @@ kbd {
   margin-inline: auto;
 }
 
-/* ---------- background: blended light, fine grain, quiet dot field ---------- */
+/* ---------- background: deep base with a faint steel haze and fine grain ---------- */
 
 body::before {
   content: "";
@@ -143,22 +146,11 @@ body::before {
   pointer-events: none;
   background:
     var(--grain-soft),
-    radial-gradient(72% 58% at 14% -10%, var(--amb-1), transparent 74%),
-    radial-gradient(58% 48% at 94% 6%, var(--amb-2), transparent 72%),
-    radial-gradient(80% 58% at 50% 114%, var(--amb-3), transparent 74%),
-    radial-gradient(48% 42% at 74% 58%, var(--amb-4), transparent 74%),
-    linear-gradient(180deg, var(--bg-top), var(--bg) 62%);
-}
-
-#field {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  -webkit-mask-image: radial-gradient(120% 80% at 50% 0%, #000 25%, transparent 80%);
-  mask-image: radial-gradient(120% 80% at 50% 0%, #000 25%, transparent 80%);
+    radial-gradient(70% 55% at 10% -12%, var(--amb-1), transparent 72%),
+    radial-gradient(55% 45% at 96% 4%, var(--amb-2), transparent 72%),
+    radial-gradient(85% 55% at 50% 116%, var(--amb-3), transparent 74%),
+    radial-gradient(45% 40% at 78% 60%, var(--amb-4), transparent 74%),
+    linear-gradient(180deg, var(--bg-top), var(--bg) 60%);
 }
 
 /* ---------- top bar ---------- */
@@ -256,8 +248,37 @@ body::before {
 /* ---------- hero ---------- */
 
 .hero {
-  padding: 6.5rem 0 2rem;
+  position: relative;
+  padding: 7rem 0 2rem;
   text-align: center;
+}
+
+/* signature: steel-blue light rising behind tall fluted glass panes */
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -3.6rem;
+  bottom: -26rem;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background:
+    /* pane edges: a dark seam with a thin highlight beside it */
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0) 0 126px, rgba(0, 0, 0, 0.38) 126px 127px, rgba(var(--tint-rgb), 0.13) 127px 128px),
+    /* fluting: every pane brightens toward one side */
+    repeating-linear-gradient(90deg, rgba(var(--tint-rgb), 0) 0, rgba(var(--tint-rgb), 0.085) 84px, rgba(var(--tint-rgb), 0.015) 128px),
+    /* slow drift of brightness across the panes */
+    repeating-linear-gradient(90deg, rgba(var(--accent-rgb), 0) 0, rgba(var(--accent-rgb), 0.17) 320px, rgba(var(--accent-rgb), 0.02) 640px, rgba(var(--accent-rgb), 0.1) 896px, rgba(var(--accent-rgb), 0) 1152px),
+    /* the light source, low behind the first cards */
+    radial-gradient(54% 36% at 50% 64%, rgba(var(--light-rgb), 0.6), rgba(var(--accent-rgb), 0.4) 32%, rgba(var(--deep-rgb), 0.5) 62%, transparent 84%),
+    linear-gradient(180deg, rgba(var(--deep-rgb), 0), rgba(var(--deep-rgb), 0.42) 55%, rgba(var(--deep-rgb), 0));
+  /* fade out to the sides and toward the bottom, so the light has no visible edge */
+  -webkit-mask-image: linear-gradient(90deg, transparent 2%, #000 24%, #000 76%, transparent 98%), linear-gradient(180deg, #000 0%, #000 56%, transparent 96%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent 2%, #000 24%, #000 76%, transparent 98%), linear-gradient(180deg, #000 0%, #000 56%, transparent 96%);
+  mask-composite: intersect;
 }
 
 .eyebrow {
@@ -285,21 +306,21 @@ body::before {
   margin-top: 1.1rem;
   padding-bottom: 0.08em;
   font-size: clamp(3.2rem, 10.5vw, 7.2rem);
-  font-weight: 800;
-  letter-spacing: -0.065em;
+  font-weight: 700;
+  letter-spacing: -0.06em;
   line-height: 0.95;
   color: #fff;
-  background: linear-gradient(180deg, #fff 35%, #bcd0ff);
+  background: linear-gradient(180deg, #fff 40%, #c6dcee);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 12px rgba(var(--tint-rgb), 0.3)) drop-shadow(0 0 46px rgba(var(--accent-rgb), 0.42));
+  filter: drop-shadow(0 0 34px rgba(var(--accent-rgb), 0.35));
 }
 
 .lede {
   margin-top: 1.2rem;
   font-size: clamp(1.08rem, 2.2vw, 1.35rem);
-  color: var(--muted);
+  color: #cfdce8;
 }
 
 .actions {
@@ -318,18 +339,18 @@ body::before {
   border: 1px solid transparent;
   border-radius: 999px;
   background: #fff;
-  color: #05102b;
+  color: #07121c;
   font-weight: 600;
   transition:
     transform 0.15s ease,
     box-shadow 0.2s ease,
     background-color 0.15s ease;
-  box-shadow: 0 14px 40px -14px rgba(var(--accent-rgb), 0.9);
+  box-shadow: 0 14px 40px -16px rgba(var(--light-rgb), 0.9);
 }
 
 .btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 18px 46px -12px rgba(var(--accent-rgb), 1);
+  box-shadow: 0 18px 46px -14px rgba(var(--light-rgb), 1);
 }
 
 .btn .arrow {
@@ -381,7 +402,7 @@ a:hover .more .arrow,
 
 .section-head h2 {
   font-size: clamp(1.6rem, 3vw, 2rem);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .more {
@@ -405,13 +426,13 @@ a:hover .more .arrow,
     radial-gradient(420px circle at var(--mx, 50%) var(--my, -40%), rgba(var(--accent-rgb), 0.22), transparent 60%),
     var(--glass-sheen),
     var(--glass),
-    linear-gradient(rgba(4, 7, 20, 0.34), rgba(4, 7, 20, 0.34));
+    linear-gradient(rgba(7, 11, 16, 0.38), rgba(7, 11, 16, 0.38));
   background-clip: padding-box;
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
   box-shadow:
     var(--glass-edge),
-    0 34px 70px -38px rgba(2, 6, 26, 0.95);
+    0 34px 70px -38px rgba(0, 0, 0, 0.9);
   transition: transform 0.2s ease;
 }
 
@@ -455,7 +476,7 @@ a.card:hover,
 }
 
 .card p {
-  color: #c5cfe8;
+  color: #c9d5e0;
 }
 
 /* ---------- projects ---------- */
@@ -475,8 +496,8 @@ a.card:hover,
   inset: 8% 6% 4%;
   border-radius: 50%;
   background:
-    radial-gradient(50% 60% at 22% 30%, rgba(var(--accent-rgb), 0.4), transparent 72%),
-    radial-gradient(46% 56% at 82% 74%, rgba(var(--orb-2-rgb), 0.32), transparent 72%);
+    radial-gradient(50% 60% at 24% 34%, rgba(var(--accent-rgb), 0.28), transparent 72%),
+    radial-gradient(46% 56% at 80% 76%, rgba(var(--teal-rgb), 0.2), transparent 72%);
   filter: blur(46px);
   pointer-events: none;
 }
@@ -592,14 +613,14 @@ button.chip:hover {
 button.chip[aria-pressed="true"]:hover {
   background: #fff;
   border-color: #fff;
-  color: #05102b;
+  color: #07121c;
   font-weight: 600;
 }
 
 .chip-static {
   cursor: default;
   font-size: 0.78rem;
-  color: #c5cfe8;
+  color: #c9d5e0;
 }
 
 .rows-empty {
@@ -664,7 +685,7 @@ button.chip[aria-pressed="true"]:hover {
   height: 5rem;
   border-radius: 50%;
   border: 1px solid var(--line-strong);
-  background: radial-gradient(circle at 35% 25%, rgba(var(--accent-rgb), 0.75), rgba(var(--orb-2-rgb), 0.35));
+  background: radial-gradient(circle at 35% 25%, rgba(var(--light-rgb), 0.8), rgba(var(--deep-rgb), 0.9));
   font-family: var(--display);
   font-size: 1.5rem;
   font-weight: 800;
@@ -683,8 +704,31 @@ button.chip[aria-pressed="true"]:hover {
 }
 
 .contact {
-  padding: 1rem 0 0;
+  position: relative;
+  padding: 3.5rem 0 1rem;
   text-align: center;
+}
+
+/* the page closes the way it opens: light behind fluted glass, pooled at the footer line */
+.contact::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -3rem;
+  bottom: -5.5rem;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0) 0 126px, rgba(0, 0, 0, 0.38) 126px 127px, rgba(var(--tint-rgb), 0.13) 127px 128px),
+    repeating-linear-gradient(90deg, rgba(var(--tint-rgb), 0) 0, rgba(var(--tint-rgb), 0.085) 84px, rgba(var(--tint-rgb), 0.015) 128px),
+    repeating-linear-gradient(90deg, rgba(var(--accent-rgb), 0) 0, rgba(var(--accent-rgb), 0.17) 320px, rgba(var(--accent-rgb), 0.02) 640px, rgba(var(--accent-rgb), 0.1) 896px, rgba(var(--accent-rgb), 0) 1152px),
+    radial-gradient(46% 78% at 50% 100%, rgba(var(--light-rgb), 0.5), rgba(var(--accent-rgb), 0.34) 30%, rgba(var(--deep-rgb), 0.5) 60%, transparent 84%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 6%, #000 30%, #000 70%, transparent 94%), linear-gradient(0deg, #000 0%, #000 40%, transparent 96%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent 6%, #000 30%, #000 70%, transparent 94%), linear-gradient(0deg, #000 0%, #000 40%, transparent 96%);
+  mask-composite: intersect;
 }
 
 .contact h2 {
@@ -711,7 +755,7 @@ button.chip[aria-pressed="true"]:hover {
   font-size: clamp(2.6rem, 7vw, 4.4rem);
   font-weight: 800;
   letter-spacing: -0.055em;
-  text-shadow: 0 0 22px rgba(var(--tint-rgb), 0.2), 0 0 60px rgba(var(--accent-rgb), 0.42);
+  text-shadow: 0 0 50px rgba(var(--accent-rgb), 0.35);
 }
 
 .page-head .lede {
