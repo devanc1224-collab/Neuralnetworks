@@ -6,7 +6,7 @@ import { ARROW, SEARCH } from "../components/Icons";
 interface Props {
   title?: string;
   description?: string;
-  active?: "library" | "map" | "about" | "";
+  active?: "library" | "map" | "guide" | "glossary" | "about" | "";
   // the homepage brings its own, larger light; every other page gets the shared one
   light?: boolean;
 }
@@ -32,6 +32,8 @@ const index = [
 const nav = [
   { key: "library", href: "/library" },
   { key: "map", href: "/map" },
+  { key: "guide", href: "/guide" },
+  { key: "glossary", href: "/glossary" },
   { key: "about", href: "/about" },
 ];
 const year = new Date().getFullYear();
@@ -53,7 +55,7 @@ const year = new Date().getFullYear();
       href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Manrope:wght@600;700;800&display=swap"
     />
   </head>
-  <body>
+  <body id="top">
     <a class="skip" href="#main">Skip to content</a>
     <header class="top">
       <div class="wrap top-in">
@@ -73,13 +75,7 @@ const year = new Date().getFullYear();
     <footer class="foot">
       <div class="wrap foot-in">
         <span>&copy; {year} {site.name}</span>
-        <nav aria-label="Footer">
-          <a href="/library">library</a>
-          <a href="/map">map</a>
-          <a href="/guide">guide</a>
-          <a href="/glossary">glossary</a>
-          <a href="/about">about</a>
-        </nav>
+        <a class="totop" href="#top">back to top <Fragment set:html={ARROW} /></a>
       </div>
     </footer>
     <dialog class="palette" id="palette" aria-label="Search the site">
