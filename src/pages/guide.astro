@@ -1,0 +1,78 @@
+---
+import Base from "../layouts/Base.astro";
+import Meter from "../components/Meter.astro";
+import { site } from "../lib/site";
+---
+
+<Base title="How to read this site" description="What the labels on each entry mean and how much weight to give them.">
+  <article class="wrap article">
+    <a class="back" href="/library"
+      ><svg class="arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"></path></svg> library</a
+    >
+    <h1 class="guide-title">how to read this site</h1>
+    <p class="standfirst">
+      A single study rarely settles a question. The labels on each entry are there to help you judge how much weight a
+      finding deserves.
+    </p>
+
+    <div class="prose">
+      <h2>Three kinds of entry</h2>
+      <ul>
+        <li><strong>Study summary:</strong> a published paper, explained in plain language, with a link to the original.</li>
+        <li><strong>Original research:</strong> experiments and analyses done for {site.name}. These have not been peer reviewed.</li>
+        <li><strong>Note:</strong> a shorter piece, such as an idea, an explanation of a concept, or a reading list.</li>
+      </ul>
+
+      <h2>The evidence meter</h2>
+      <p>
+        Study summaries show the design of the study and a four-step meter. The meter reflects the design only. It is a
+        rough guide to how much one study of that kind can tell us, not a score for how well the study was run. A careful
+        observational study can be more reliable than a small or badly run trial.
+      </p>
+      <ul class="guide-levels">
+        <li>
+          <Meter level={4} label="pooled evidence" />
+          <span>Meta-analyses and systematic reviews combine many studies. They are usually the strongest single source, but only as good as the studies they include.</span>
+        </li>
+        <li>
+          <Meter level={3} label="randomized" />
+          <span>Randomized trials assign people to a treatment or a comparison by chance. This is the best design for showing that one thing causes another.</span>
+        </li>
+        <li>
+          <Meter level={2} label="observational" />
+          <span>Observational studies follow what people already do. They can show that two things go together, but not reliably that one causes the other.</span>
+        </li>
+        <li>
+          <Meter level={1} label="early evidence" />
+          <span>Animal studies, cell studies, and case reports. Useful for generating ideas; results often do not carry over to people.</span>
+        </li>
+      </ul>
+
+      <h2>The numbers</h2>
+      <p>
+        Results are given in absolute terms wherever the paper allows, because a relative figure alone can make an effect
+        look larger than it is. If a risk falls from 2 in 100 people to 1 in 100, that is a 50% relative reduction, but
+        only 1 person in 100 is better off.
+      </p>
+
+      <h2>Participants and funding</h2>
+      <p>
+        Larger studies give steadier results, and findings in one group of people may not apply to another. Each summary
+        also says who paid for the study when the paper reports it, since the source of funding can influence how results
+        are framed.
+      </p>
+
+      <h2>Limits, dates, and corrections</h2>
+      <p>
+        Every summary can list what the study does not show. The "last reviewed" date says when the entry was last
+        checked. If a paper is later corrected or retracted, the entry is marked so the change is visible.
+      </p>
+
+      <h2>Not medical advice</h2>
+      <p>
+        Nothing here is medical advice. The entries describe what studies found; they are not recommendations for any
+        individual. Talk to a qualified professional before acting on health information.
+      </p>
+    </div>
+  </article>
+</Base>

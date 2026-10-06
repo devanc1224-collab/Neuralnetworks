@@ -1,0 +1,311 @@
+---
+import Base from "../layouts/Base.astro";
+import { getEntries, topicList, TYPES, entryUrl, slugify } from "../lib/site";
+
+const entries = await getEntries();
+const topics = topicList(entries);
+const topicsOf = (e: (typeof entries)[number]) => [...new Set(e.data.topics.map(slugify).filter(Boolean))];
+
+const nodes = [
+  ...topics.map((t) => ({ id: `t:${t.slug}`, t: t.label, k: "topic", l: "topic", u: `/library?topic=${t.slug}` })),
+  ...entries.map((e) => ({ id: `e:${e.id}`, t: e.data.title, k: e.data.type, l: TYPES[e.data.type].label, u: entryUrl(e) })),
+];
+const at = new Map(nodes.map((n, i) => [n.id, i]));
+const links: [number, number][] = [];
+for (const e of entries) {
+  for (const t of topicsOf(e)) {
+    const a = at.get(`e:${e.id}`);
+    const b = at.get(`t:${t}`);
+    if (a !== undefined && b !== undefined) links.push([a, b]);
+  }
+}
+const byTopic = topics.map((t) => ({ ...t, entries: entries.filter((e) => topicsOf(e).includes(t.slug)) }));
+const loose = entries.filter((e) => topicsOf(e).length === 0);
+---
+
+<Base title="Map" description="How the entries connect, by topic." active="map">
+  <section class="wrap page-head">
+    <h1>map</h1>
+    <p class="lede">How the entries connect. Each line joins an entry to a topic it covers.</p>
+  </section>
+
+  <section class="wrap" aria-label="Map">
+    {
+      entries.length > 0 ? (
+        <div class="card mapbox">
+          <svg id="map" role="group" aria-label="Map of entries and topics" />
+          <div class="map-legend" aria-hidden="true">
+            <span data-kind="topic">topic</span>
+            <span data-type="study">study summary</span>
+            <span data-type="research">original research</span>
+            <span data-type="note">note</span>
+          </div>
+          <p class="map-hint">Drag a dot to rearrange. Select one to open it.</p>
+        </div>
+      ) : (
+        <p class="rows-empty">Nothing has been published yet.</p>
+      )
+    }
+    <script type="application/json" id="map-data" set:html={JSON.stringify({ nodes, links })} />
+  </section>
+
+  {
+    entries.length > 0 && (
+      <section class="wrap section" aria-labelledby="h-bytopic">
+        <div class="section-head">
+          <h2 id="h-bytopic">by topic</h2>
+        </div>
+        <div class="topic-list">
+          {byTopic.map((t) => (
+            <div class="topic-group">
+              <h3>
+                <a href={`/library?topic=${t.slug}`}>{t.label}</a> <small>{t.count}</small>
+              </h3>
+              <ul>
+                {t.entries.map((e) => (
+                  <li data-type={e.data.type}>
+                    <a href={entryUrl(e)}>{e.data.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          {loose.length > 0 && (
+            <div class="topic-group">
+              <h3>no topic yet</h3>
+              <ul>
+                {loose.map((e) => (
+                  <li data-type={e.data.type}>
+                    <a href={entryUrl(e)}>{e.data.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  <script>
+    // A small force-directed map: topics are hubs, entries attach to the topics they cover.
+    (() => {
+      type Node = { id: string; t: string; k: string; l: string; u: string };
+      const svg = document.getElementById("map") as SVGSVGElement | null;
+      const dataEl = document.getElementById("map-data");
+      if (!svg || !dataEl) return;
+      let data: { nodes: Node[]; links: [number, number][] } = { nodes: [], links: [] };
+      try {
+        data = JSON.parse(dataEl.textContent || "");
+      } catch {
+        return;
+      }
+      const { nodes, links } = data;
+      const N = nodes.length;
+      if (!N) return;
+
+      const NS = "http://www.w3.org/2000/svg";
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const box = svg.getBoundingClientRect();
+      const W = Math.max(320, Math.round(box.width));
+      const H = Math.max(320, Math.round(box.height));
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+      const make = (tag: string, attrs: Record<string, string | number> = {}) => {
+        const node = document.createElementNS(NS, tag);
+        for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
+        return node;
+      };
+
+      const deg = nodes.map(() => 0);
+      const near = nodes.map(() => new Set<number>());
+      for (const [a, b] of links) {
+        deg[a]++;
+        deg[b]++;
+        near[a].add(b);
+        near[b].add(a);
+      }
+      const radius = (i: number) => (nodes[i].k === "topic" ? 9 + Math.min(11, deg[i] * 1.5) : 6.5);
+
+      // start on two rings: topics inside, entries outside
+      const P = nodes.map((n, i) => {
+        const a = (i / N) * Math.PI * 2;
+        const r = n.k === "topic" ? 0.14 : 0.3;
+        return { x: W / 2 + Math.cos(a) * W * r, y: H / 2 + Math.sin(a) * H * r * 0.8, held: false };
+      });
+
+      const gLinks = make("g", { class: "map-links" });
+      const gNodes = make("g", { class: "map-nodes" });
+      svg.append(gLinks, gNodes);
+      // on small screens, or with many entries, only topics keep a permanent label
+      if (N > 26 || W < 560) svg.classList.add("sparse");
+
+      const lineEls = links.map(() => {
+        const l = make("line");
+        gLinks.append(l);
+        return l;
+      });
+
+      const nodeEls = nodes.map((n, i) => {
+        const a = make("a", { href: n.u, class: "map-node", "data-kind": n.k, "aria-label": `${n.t} (${n.l})` });
+        a.append(make("circle", { r: radius(i) }));
+        const label = make("text", { y: radius(i) + 17, "text-anchor": "middle" });
+        label.textContent = n.t.length > 26 ? `${n.t.slice(0, 24).trimEnd()}\u2026` : n.t;
+        a.append(label);
+        gNodes.append(a);
+        return a;
+      });
+
+      const draw = () => {
+        links.forEach(([a, b], i) => {
+          lineEls[i].setAttribute("x1", P[a].x.toFixed(1));
+          lineEls[i].setAttribute("y1", P[a].y.toFixed(1));
+          lineEls[i].setAttribute("x2", P[b].x.toFixed(1));
+          lineEls[i].setAttribute("y2", P[b].y.toFixed(1));
+        });
+        nodeEls.forEach((el, i) => el.setAttribute("transform", `translate(${P[i].x.toFixed(1)} ${P[i].y.toFixed(1)})`));
+      };
+
+      // Fruchterman-Reingold layout: nodes push apart, links pull together, a light pull keeps
+      // everything near the centre, and the allowed movement per step cools down over time.
+      const PAD_X = Math.max(52, Math.min(110, W * 0.16));
+      const PAD_TOP = 34;
+      const PAD_BOTTOM = 84; // leaves room for labels and the legend
+      const clampX = (x: number) => Math.min(W - PAD_X, Math.max(PAD_X, x));
+      const clampY = (y: number) => Math.min(H - PAD_BOTTOM, Math.max(PAD_TOP, y));
+      const area = Math.max(1, (W - PAD_X * 2) * (H - PAD_TOP - PAD_BOTTOM));
+      const K = Math.max(40, Math.sqrt(area / N) * 0.8);
+      const cx = W / 2;
+      const cy = (PAD_TOP + H - PAD_BOTTOM) / 2;
+      let temp = Math.min(W, H) / 6;
+      const DX = new Float64Array(N);
+      const DY = new Float64Array(N);
+      const step = () => {
+        DX.fill(0);
+        DY.fill(0);
+        for (let i = 0; i < N; i++) {
+          for (let j = i + 1; j < N; j++) {
+            let dx = P[i].x - P[j].x;
+            let dy = P[i].y - P[j].y;
+            if (dx === 0 && dy === 0) {
+              dx = (i % 2 ? 1 : -1) * 0.5;
+              dy = 0.5;
+            }
+            const d = Math.sqrt(dx * dx + dy * dy);
+            // labels are wide, so sideways closeness counts for more than vertical closeness
+            const felt = Math.sqrt(dx * dx * 0.36 + dy * dy);
+            // nodes only push on their neighbourhood; separate clusters are left to drift inward
+            if (felt > K * 2.4) continue;
+            const f = (K * K) / felt;
+            DX[i] += (dx / d) * f;
+            DY[i] += (dy / d) * f;
+            DX[j] -= (dx / d) * f;
+            DY[j] -= (dy / d) * f;
+          }
+        }
+        for (const [a, b] of links) {
+          const dx = P[b].x - P[a].x;
+          const dy = P[b].y - P[a].y;
+          const d = Math.sqrt(dx * dx + dy * dy) || 0.5;
+          const f = (d * d) / K;
+          DX[a] += (dx / d) * f;
+          DY[a] += (dy / d) * f;
+          DX[b] -= (dx / d) * f;
+          DY[b] -= (dy / d) * f;
+        }
+        for (let i = 0; i < N; i++) {
+          if (P[i].held) continue;
+          const gx = DX[i] + (cx - P[i].x) * 0.42;
+          const gy = DY[i] + (cy - P[i].y) * 0.6;
+          const len = Math.sqrt(gx * gx + gy * gy) || 1;
+          const move = Math.min(len, temp);
+          P[i].x = clampX(P[i].x + (gx / len) * move);
+          P[i].y = clampY(P[i].y + (gy / len) * move);
+        }
+        temp = Math.max(0.4, temp * 0.965);
+      };
+
+      let running = false;
+      let idle = 0;
+      const loop = () => {
+        step();
+        draw();
+        idle = temp <= 0.45 ? idle + 1 : 0;
+        if (idle > 20) {
+          running = false;
+          return;
+        }
+        requestAnimationFrame(loop);
+      };
+      const start = (heat: number) => {
+        temp = Math.max(temp, heat);
+        idle = 0;
+        if (reduce) {
+          for (let i = 0; i < 320; i++) step();
+          draw();
+          return;
+        }
+        if (!running) {
+          running = true;
+          requestAnimationFrame(loop);
+        }
+      };
+
+      // highlight a node together with what it connects to
+      const focus = (i: number | null) => {
+        svg.classList.toggle("focus", i !== null);
+        nodeEls.forEach((el, j) => el.classList.toggle("on", i !== null && (j === i || near[i].has(j))));
+        links.forEach(([a, b], k) => lineEls[k].classList.toggle("on", i !== null && (a === i || b === i)));
+      };
+
+      const toLocal = (e: PointerEvent) => {
+        const m = svg.getScreenCTM();
+        if (!m) return { x: e.clientX, y: e.clientY };
+        const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+        return { x: p.x, y: p.y };
+      };
+
+      nodeEls.forEach((el, i) => {
+        let moved = 0;
+        let last = { x: 0, y: 0 };
+        el.addEventListener("pointerenter", () => focus(i));
+        el.addEventListener("pointerleave", () => {
+          if (!P[i].held) focus(null);
+        });
+        el.addEventListener("focus", () => focus(i));
+        el.addEventListener("blur", () => focus(null));
+        el.addEventListener("pointerdown", (e) => {
+          moved = 0;
+          last = toLocal(e);
+          P[i].held = true;
+          el.setPointerCapture(e.pointerId);
+        });
+        el.addEventListener("pointermove", (e) => {
+          if (!P[i].held) return;
+          const p = toLocal(e);
+          moved += Math.abs(p.x - last.x) + Math.abs(p.y - last.y);
+          last = p;
+          P[i].x = clampX(p.x);
+          P[i].y = clampY(p.y);
+          if (reduce) draw();
+          else start(6);
+        });
+        const release = () => {
+          P[i].held = false;
+          focus(null);
+        };
+        el.addEventListener("pointerup", release);
+        el.addEventListener("pointercancel", release);
+        // a drag should not also count as a click on the link
+        el.addEventListener("click", (e) => {
+          if (moved > 6) e.preventDefault();
+          moved = 0;
+        });
+        el.addEventListener("dragstart", (e) => e.preventDefault());
+      });
+
+      draw();
+      start(temp);
+    })();
+  </script>
+</Base>

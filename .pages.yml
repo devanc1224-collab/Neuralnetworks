@@ -63,6 +63,75 @@ content:
         type: string
         list: true
         description: Optional. One finding per line, in plain language.
+      - name: design
+        label: Study design
+        type: select
+        description: Optional, for study summaries. Sets the evidence meter shown on the entry.
+        options:
+          placeholder: Choose a design
+          values:
+            - name: meta
+              label: Meta-analysis
+            - name: review
+              label: Systematic review
+            - name: rct
+              label: Randomized trial
+            - name: observational
+              label: Observational study
+            - name: case
+              label: Case report
+            - name: animal
+              label: Animal study
+            - name: cell
+              label: Cell study
+            - name: other
+              label: Other
+      - name: sample
+        label: Participants
+        type: string
+        description: Optional. How many participants and who they were, for example 1,204 adults aged 40 to 65.
+      - name: effect
+        label: The numbers
+        type: object
+        description: Optional. The main result, in absolute terms first.
+        fields:
+          - name: absolute
+            label: In absolute terms
+            type: string
+            description: For example 4 in 100 people, down from 6 in 100.
+          - name: relative
+            label: In relative terms
+            type: string
+            description: For example 33% lower risk.
+      - name: funding
+        label: Funding and conflicts
+        type: text
+        description: Optional. Who paid for the study and any conflicts of interest the authors declared.
+      - name: limitations
+        label: What this does not show
+        type: string
+        list: true
+        description: Optional. One limitation per line.
+      - name: reviewed
+        label: Last reviewed
+        type: date
+        default: ""
+        description: Optional. The date you last checked this entry against the source.
+        options:
+          format: yyyy-MM-dd
+      - name: status
+        label: Status
+        type: select
+        default: current
+        description: Change this if the paper is later corrected or retracted.
+        options:
+          values:
+            - name: current
+              label: Current
+            - name: corrected
+              label: Corrected
+            - name: retracted
+              label: Retracted
       - name: source
         label: Source
         type: object

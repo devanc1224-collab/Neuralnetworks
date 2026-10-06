@@ -1,0 +1,15 @@
+---
+// Four-step evidence meter. The filled steps show the level; the text carries the meaning.
+interface Props {
+  level: number;
+  label: string;
+}
+const { level, label } = Astro.props;
+---
+
+<span class="meter" role="img" aria-label={`Evidence level ${level} of 4: ${label}`}>
+  <span class="meter-bars" aria-hidden="true">
+    {[1, 2, 3, 4].map((n) => <i class:list={{ on: n <= level }} />)}
+  </span>
+  <span class="meter-label" aria-hidden="true">{label}</span>
+</span>

@@ -1,5 +1,6 @@
 ---
-import { TYPES, formatDate, isoDate, entryUrl, slugify, type Entry } from "../lib/site";
+import Meter from "./Meter.astro";
+import { TYPES, formatDate, isoDate, entryUrl, slugify, evidence, type Entry } from "../lib/site";
 import { ARROW } from "./Icons";
 
 interface Props {
@@ -9,25 +10,37 @@ interface Props {
 const { entry, lead = false } = Astro.props;
 const d = entry.data;
 const topics = d.topics.map((t) => t.trim().toLowerCase());
+const ev = evidence(entry);
 ---
 
 <a
   class:list={["card", "entry", { "entry-lead": lead }]}
   href={entryUrl(entry)}
   data-type={d.type}
+  data-level={ev && ev.level > 0 ? ev.level : undefined}
   data-topics={topics.map(slugify).join(" ")}
 >
-  {d.cover && (
-    <div class="entry-cover">
-      <img src={d.cover} alt="" loading="lazy" />
-    </div>
-  )}
+  {
+    d.cover && (
+      <div class="entry-cover">
+        <img src={d.cover} alt="" loading="lazy" />
+      </div>
+    )
+  }
   <div class="entry-top">
     <span class="badge">{TYPES[d.type].label}</span>
     <time class="entry-date" datetime={isoDate(d.date)}>{formatDate(d.date)}</time>
   </div>
   <h3>{d.title}</h3>
   {d.summary && <p>{d.summary}</p>}
+  {
+    (d.status !== "current" || (ev && ev.level > 0)) && (
+      <div class="entry-signals">
+        {d.status !== "current" && <span class="flag" data-status={d.status}>{d.status}</span>}
+        {ev && ev.level > 0 && <Meter level={ev.level} label={ev.label} />}
+      </div>
+    )
+  }
   <div class="entry-foot">
     <span class="entry-topics">{topics.join(", ")}</span>
     <span class="more">read <Fragment set:html={ARROW} /></span>

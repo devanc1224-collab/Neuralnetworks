@@ -1,23 +1,30 @@
 ---
 import { render } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import { getEntries, TYPES, formatDate, isoDate, slugify, type Entry } from "../../lib/site";
+import EntryCard from "../../components/EntryCard.astro";
+import Meter from "../../components/Meter.astro";
+import { getEntries, TYPES, formatDate, isoDate, slugify, evidence, related, type Entry } from "../../lib/site";
 import { ARROW } from "../../components/Icons";
 
 export async function getStaticPaths() {
   const entries = await getEntries();
-  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry, entries } }));
 }
 
 interface Props {
   entry: Entry;
+  entries: Entry[];
 }
-const { entry } = Astro.props;
+const { entry, entries } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
 const topics = d.topics.map((t) => t.trim().toLowerCase());
 const safeUrl = d.source.url && /^https?:\/\//i.test(d.source.url) ? d.source.url : undefined;
 const hasSource = Boolean(d.source.citation || safeUrl);
+const ev = evidence(entry);
+const hasFacts = Boolean(ev || d.sample || d.funding || d.reviewed);
+const hasNumbers = Boolean(d.effect.relative || d.effect.absolute);
+const more = related(entry, entries);
 ---
 
 <Base title={d.title} description={d.summary || undefined} active="library">
@@ -40,6 +47,24 @@ const hasSource = Boolean(d.source.citation || safeUrl);
         </div>
       )
     }
+
+    {
+      d.status === "retracted" && (
+        <p class="notice" data-status="retracted" role="note">
+          <b>Retracted.</b> The paper behind this entry has been withdrawn. The summary is kept for the record; do not
+          rely on its findings.
+        </p>
+      )
+    }
+    {
+      d.status === "corrected" && (
+        <p class="notice" data-status="corrected" role="note">
+          <b>Corrected.</b> The paper behind this entry was corrected after publication. This summary reflects the
+          corrected version.
+        </p>
+      )
+    }
+
     {
       d.cover && (
         <div class="article-cover">
@@ -47,6 +72,44 @@ const hasSource = Boolean(d.source.citation || safeUrl);
         </div>
       )
     }
+
+    {
+      hasFacts && (
+        <section class="card box facts" aria-labelledby="h-facts">
+          <h2 class="box-label" id="h-facts">at a glance</h2>
+          <dl>
+            {ev && (
+              <div>
+                <dt>design</dt>
+                <dd>{ev.level > 0 ? <Meter level={ev.level} label={ev.label} /> : ev.label}</dd>
+              </div>
+            )}
+            {d.sample && (
+              <div>
+                <dt>participants</dt>
+                <dd>{d.sample}</dd>
+              </div>
+            )}
+            {d.funding && (
+              <div>
+                <dt>funding</dt>
+                <dd>{d.funding}</dd>
+              </div>
+            )}
+            {d.reviewed && (
+              <div>
+                <dt>last reviewed</dt>
+                <dd>
+                  <time datetime={isoDate(d.reviewed)}>{formatDate(d.reviewed)}</time>
+                </dd>
+              </div>
+            )}
+          </dl>
+          <a class="box-help" href="/guide">how to read these</a>
+        </section>
+      )
+    }
+
     {
       d.findings.length > 0 && (
         <section class="card box findings" aria-labelledby="h-findings">
@@ -59,9 +122,46 @@ const hasSource = Boolean(d.source.citation || safeUrl);
         </section>
       )
     }
+
+    {
+      hasNumbers && (
+        <section class="card box numbers" aria-labelledby="h-numbers">
+          <h2 class="box-label" id="h-numbers">the numbers</h2>
+          <dl>
+            {d.effect.absolute && (
+              <div>
+                <dt>in absolute terms</dt>
+                <dd>{d.effect.absolute}</dd>
+              </div>
+            )}
+            {d.effect.relative && (
+              <div>
+                <dt>in relative terms</dt>
+                <dd>{d.effect.relative}</dd>
+              </div>
+            )}
+          </dl>
+        </section>
+      )
+    }
+
     <div class="prose">
       <Content />
     </div>
+
+    {
+      d.limitations.length > 0 && (
+        <section class="card box findings limits" aria-labelledby="h-limits">
+          <h2 class="box-label" id="h-limits">what this does not show</h2>
+          <ul>
+            {d.limitations.map((f) => (
+              <li>{f}</li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
     {
       hasSource && (
         <section class="card box sourcebox" aria-labelledby="h-source">
@@ -76,4 +176,22 @@ const hasSource = Boolean(d.source.citation || safeUrl);
       )
     }
   </article>
+
+  {
+    more.length > 0 && (
+      <section class="wrap section" aria-labelledby="h-related">
+        <div class="section-head">
+          <h2 id="h-related">related</h2>
+          <a class="more" href="/map">
+            see the map <Fragment set:html={ARROW} />
+          </a>
+        </div>
+        <div class="entry-grid">
+          {more.map((e) => (
+            <EntryCard entry={e} />
+          ))}
+        </div>
+      </section>
+    )
+  }
 </Base>

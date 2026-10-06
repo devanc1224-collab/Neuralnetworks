@@ -25,6 +25,44 @@ export const TYPES = {
 
 export type EntryType = keyof typeof TYPES;
 
+// Study designs and the evidence level each one maps to (4 = most a single entry can tell us).
+// The level reflects the design only. It is a rough guide, not a judgement of how well a study was run.
+export const DESIGNS = {
+  meta: { label: "meta-analysis", level: 4 },
+  review: { label: "systematic review", level: 4 },
+  rct: { label: "randomized trial", level: 3 },
+  observational: { label: "observational study", level: 2 },
+  case: { label: "case report", level: 1 },
+  animal: { label: "animal study", level: 1 },
+  cell: { label: "cell study", level: 1 },
+  other: { label: "other design", level: 0 },
+} as const;
+
+export const LEVELS: Record<number, string> = {
+  4: "pooled evidence",
+  3: "randomized",
+  2: "observational",
+  1: "early evidence",
+};
+
+export function evidence(e: Entry) {
+  const d = e.data.design ? DESIGNS[e.data.design] : undefined;
+  return d ? { label: d.label, level: d.level, group: LEVELS[d.level] ?? "" } : undefined;
+}
+
+// Entries that share topics with this one, most overlap first, then newest.
+export function related(entry: Entry, all: Entry[], max = 3) {
+  const mine = new Set(entry.data.topics.map(slugify).filter(Boolean));
+  if (!mine.size) return [];
+  return all
+    .filter((e) => e.id !== entry.id)
+    .map((e) => ({ e, shared: e.data.topics.map(slugify).filter((t) => mine.has(t)).length }))
+    .filter((x) => x.shared > 0)
+    .sort((a, b) => b.shared - a.shared || b.e.data.date.getTime() - a.e.data.date.getTime())
+    .slice(0, max)
+    .map((x) => x.e);
+}
+
 export const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 

@@ -1,11 +1,12 @@
 ---
 import Base from "../layouts/Base.astro";
 import EntryCard from "../components/EntryCard.astro";
-import { getEntries, topicList, TYPES, type EntryType } from "../lib/site";
+import { getEntries, topicList, TYPES, LEVELS, evidence, type EntryType } from "../lib/site";
 
 const entries = await getEntries();
 const topics = topicList(entries);
 const types = (Object.keys(TYPES) as EntryType[]).filter((k) => entries.some((e) => e.data.type === k));
+const levels = [4, 3, 2, 1].filter((n) => entries.some((e) => evidence(e)?.level === n));
 ---
 
 <Base title="Library" description="Every study summary, piece of original research, and note." active="library">
@@ -26,6 +27,17 @@ const types = (Object.keys(TYPES) as EntryType[]).filter((k) => entries.some((e)
               </button>
             ))}
           </div>
+          {levels.length > 0 && (
+            <div class="filter-row" role="group" aria-label="Filter by evidence">
+              <span class="filter-label">evidence</span>
+              <button type="button" class="chip" data-filter-group="level" data-filter="all" aria-pressed="true">all</button>
+              {levels.map((n) => (
+                <button type="button" class="chip" data-filter-group="level" data-filter={String(n)} aria-pressed="false">
+                  {LEVELS[n]}
+                </button>
+              ))}
+            </div>
+          )}
           {topics.length > 0 && (
             <div class="filter-row" role="group" aria-label="Filter by topic">
               <span class="filter-label">topic</span>

@@ -6,7 +6,7 @@ import { ARROW, SEARCH } from "../components/Icons";
 interface Props {
   title?: string;
   description?: string;
-  active?: "library" | "about" | "";
+  active?: "library" | "map" | "about" | "";
 }
 const { title, description = site.tagline, active = "" } = Astro.props;
 const pageTitle = title ? `${title} | ${site.name}` : site.name;
@@ -15,6 +15,8 @@ const entries = await getEntries();
 const index = [
   { t: "Home", k: "page", u: "/" },
   { t: "Library", k: "page", u: "/library" },
+  { t: "Map", k: "page", u: "/map" },
+  { t: "How to read this site", k: "page", u: "/guide" },
   { t: "About", k: "page", u: "/about" },
   ...entries.map((e) => ({
     t: e.data.title,
@@ -26,6 +28,7 @@ const index = [
 ];
 const nav = [
   { key: "library", href: "/library" },
+  { key: "map", href: "/map" },
   { key: "about", href: "/about" },
 ];
 const year = new Date().getFullYear();
@@ -68,6 +71,8 @@ const year = new Date().getFullYear();
         <span>&copy; {year} {site.name}</span>
         <nav aria-label="Footer">
           <a href="/library">library</a>
+          <a href="/map">map</a>
+          <a href="/guide">guide</a>
           <a href="/about">about</a>
         </nav>
       </div>
@@ -131,7 +136,7 @@ const year = new Date().getFullYear();
         });
       });
 
-      /* ---------- library filters: type and topic, kept in the address bar ---------- */
+      /* ---------- library filters: type, evidence and topic, kept in the address bar ---------- */
       (() => {
         const grid = document.getElementById("library");
         if (!grid) return;
@@ -140,7 +145,11 @@ const year = new Date().getFullYear();
         const empty = document.getElementById("library-empty");
         const count = document.getElementById("library-count");
         const params = new URLSearchParams(location.search);
-        const state: Record<string, string> = { type: params.get("type") || "all", topic: params.get("topic") || "all" };
+        const state: Record<string, string> = {
+          type: params.get("type") || "all",
+          level: params.get("level") || "all",
+          topic: params.get("topic") || "all",
+        };
         // ignore values that match no button, so a stale link still shows everything
         for (const g of Object.keys(state)) {
           if (!buttons.some((b) => b.dataset.filterGroup === g && b.dataset.filter === state[g])) state[g] = "all";
@@ -150,8 +159,9 @@ const year = new Date().getFullYear();
           let shown = 0;
           for (const el of items) {
             const okType = state.type === "all" || el.dataset.type === state.type;
+            const okLevel = state.level === "all" || el.dataset.level === state.level;
             const okTopic = state.topic === "all" || (el.dataset.topics || "").split(" ").includes(state.topic);
-            el.hidden = !(okType && okTopic);
+            el.hidden = !(okType && okLevel && okTopic);
             if (!el.hidden) shown++;
           }
           for (const b of buttons) b.setAttribute("aria-pressed", String(state[b.dataset.filterGroup!] === b.dataset.filter));
@@ -159,6 +169,7 @@ const year = new Date().getFullYear();
           if (count) count.textContent = `${shown} ${shown === 1 ? "entry" : "entries"}`;
           const next = new URLSearchParams();
           if (state.type !== "all") next.set("type", state.type);
+          if (state.level !== "all") next.set("level", state.level);
           if (state.topic !== "all") next.set("topic", state.topic);
           const q = next.toString();
           history.replaceState(null, "", q ? `${location.pathname}?${q}` : location.pathname);
