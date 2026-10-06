@@ -17,6 +17,17 @@
     var last = 0;
     var nextSignal = 0;
 
+    // Colours come from the stylesheet tokens, so a recolour needs no script change.
+    function token(name, fallback) {
+      var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      var parts = v.split(",").map(function (n) { return parseInt(n, 10); });
+      return parts.length === 3 && parts.every(function (n) { return n >= 0 && n <= 255; }) ? parts : fallback;
+    }
+    var TINT = token("--tint-rgb", [160, 200, 255]);
+    var ACCENT = token("--accent-rgb", [77, 163, 255]);
+    var HOT = ACCENT.map(function (c) { return Math.round(c + (255 - c) * 0.45); });
+    var BASE = "rgba(" + TINT.join(",") + ",0.2)";
+
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = window.innerWidth;
@@ -56,12 +67,12 @@
           var d2 = dx * dx + dy * dy;
           if (d2 < R * R) {
             var k = 1 - Math.sqrt(d2) / R;
-            ctx.fillStyle = "rgba(" + Math.round(120 + 90 * (1 - k)) + "," + Math.round(185 + 45 * (1 - k)) + ",255," + (0.16 + k * 0.75) + ")";
+            ctx.fillStyle = "rgba(" + Math.round(TINT[0] + (HOT[0] - TINT[0]) * k) + "," + Math.round(TINT[1] + (HOT[1] - TINT[1]) * k) + "," + Math.round(TINT[2] + (HOT[2] - TINT[2]) * k) + "," + (0.2 + k * 0.72) + ")";
             ctx.beginPath();
             ctx.arc(x, y, 1 + k * 1.3, 0, 6.2832);
             ctx.fill();
           } else {
-            ctx.fillStyle = "rgba(180,210,255,0.2)";
+            ctx.fillStyle = BASE;
             ctx.fillRect(x - 0.6, y - 0.6, 1.2, 1.2);
           }
         }
@@ -77,14 +88,14 @@
           var a = 1 - age / 4;
           var px = sig.path[i][0] * GAP, py = sig.path[i][1] * GAP;
           if (i > 0 && age < 3) {
-            ctx.strokeStyle = "rgba(77,163,255," + a * 0.55 + ")";
+            ctx.strokeStyle = "rgba(" + ACCENT.join(",") + "," + a * 0.55 + ")";
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(sig.path[i - 1][0] * GAP, sig.path[i - 1][1] * GAP);
             ctx.lineTo(px, py);
             ctx.stroke();
           }
-          ctx.fillStyle = "rgba(160,210,255," + a + ")";
+          ctx.fillStyle = "rgba(" + HOT.join(",") + "," + a + ")";
           ctx.beginPath();
           ctx.arc(px, py, 1.2 + a * 1.4, 0, 6.2832);
           ctx.fill();
