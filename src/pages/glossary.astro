@@ -1,0 +1,30 @@
+---
+import Base from "../layouts/Base.astro";
+import { glossary, slugify } from "../lib/site";
+import { ARROW } from "../components/Icons";
+---
+
+<Base title="Glossary" description="Plain-language definitions of the research terms used on this site.">
+  <article class="wrap article">
+    <a class="back" href="/guide"><Fragment set:html={ARROW} /> how to read this site</a>
+    <h1 class="guide-title">glossary</h1>
+    <p class="standfirst">
+      Plain-language definitions of the research terms used here. In entries, these terms are underlined; point at one
+      or select it to see its meaning.
+    </p>
+    {
+      glossary.length > 0 ? (
+        <dl class="glossary">
+          {glossary.map((g) => (
+            <div id={slugify(g.term)}>
+              <dt>{g.term}</dt>
+              <dd>{g.definition}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : (
+        <p class="rows-empty">No terms have been added yet.</p>
+      )
+    }
+  </article>
+</Base>

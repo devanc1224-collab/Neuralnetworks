@@ -1,0 +1,76 @@
+{
+  "terms": [
+    {
+      "term": "Absolute risk",
+      "definition": "The actual chance that something happens, such as 2 in 100 people. Changes in absolute risk show how many people are really affected."
+    },
+    {
+      "term": "Relative risk",
+      "definition": "How the chance of an outcome in one group compares with another, such as 50% lower. It can sound large even when few people are affected."
+    },
+    {
+      "term": "Randomized controlled trial",
+      "definition": "A study in which people are assigned by chance to receive a treatment or a comparison. Chance assignment makes the groups alike, so a difference in outcomes can be credited to the treatment."
+    },
+    {
+      "term": "Observational study",
+      "definition": "A study that records what people already do without assigning treatments. It can show that two things go together, but not reliably that one causes the other."
+    },
+    {
+      "term": "Meta-analysis",
+      "definition": "A method that combines the results of several studies on the same question into one estimate."
+    },
+    {
+      "term": "Systematic review",
+      "definition": "A review that searches for all the studies on a question using a method set out in advance, then appraises and summarizes them."
+    },
+    {
+      "term": "Placebo",
+      "definition": "An inactive treatment made to look like the real one. It lets researchers separate the effect of a treatment from the effect of expecting to be treated."
+    },
+    {
+      "term": "Control group",
+      "definition": "The group in a study that does not receive the treatment being tested. It is the baseline the treated group is compared with."
+    },
+    {
+      "term": "Blinding",
+      "definition": "Keeping participants, researchers, or both from knowing who received which treatment, so that expectations do not shape the results."
+    },
+    {
+      "term": "Confounding",
+      "definition": "When a third factor is linked to both the suspected cause and the outcome, creating an association that is not causal."
+    },
+    {
+      "term": "Correlation",
+      "definition": "A tendency for two things to rise or fall together. On its own it does not show that one causes the other."
+    },
+    {
+      "term": "Sample size",
+      "definition": "The number of participants or observations in a study. Larger samples give more precise estimates."
+    },
+    {
+      "term": "Effect size",
+      "definition": "A measure of how large a difference or relationship is, as opposed to whether one was detected."
+    },
+    {
+      "term": "Confidence interval",
+      "definition": "A range of values consistent with the data. A wide interval means the estimate is imprecise."
+    },
+    {
+      "term": "P-value",
+      "definition": "The probability of seeing a result at least this extreme if there were truly no effect. It is not the probability that the finding is wrong."
+    },
+    {
+      "term": "Statistical significance",
+      "definition": "A result unlikely to arise by chance alone under a set threshold, often a p-value below 0.05. It says nothing about whether the effect is large enough to matter."
+    },
+    {
+      "term": "Peer review",
+      "definition": "Evaluation of a study by other researchers in the field before a journal publishes it. It screens for problems but does not guarantee the findings are correct."
+    },
+    {
+      "term": "Preprint",
+      "definition": "A study shared publicly before peer review. Its findings may change before, or never reach, publication in a journal."
+    }
+  ]
+}

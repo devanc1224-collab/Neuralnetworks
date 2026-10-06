@@ -1,14 +1,16 @@
 ---
 import "../styles/global.css";
-import { site, getEntries, topicList, TYPES, entryUrl } from "../lib/site";
+import { site, getEntries, topicList, TYPES, entryUrl, topicUrl } from "../lib/site";
 import { ARROW, SEARCH } from "../components/Icons";
 
 interface Props {
   title?: string;
   description?: string;
   active?: "library" | "map" | "about" | "";
+  // the homepage brings its own, larger light; every other page gets the shared one
+  light?: boolean;
 }
-const { title, description = site.tagline, active = "" } = Astro.props;
+const { title, description = site.tagline, active = "", light = true } = Astro.props;
 const pageTitle = title ? `${title} | ${site.name}` : site.name;
 
 const entries = await getEntries();
@@ -17,6 +19,7 @@ const index = [
   { t: "Library", k: "page", u: "/library" },
   { t: "Map", k: "page", u: "/map" },
   { t: "How to read this site", k: "page", u: "/guide" },
+  { t: "Glossary", k: "page", u: "/glossary" },
   { t: "About", k: "page", u: "/about" },
   ...entries.map((e) => ({
     t: e.data.title,
@@ -24,7 +27,7 @@ const index = [
     u: entryUrl(e),
     x: [e.data.summary, ...e.data.topics].join(" ").toLowerCase(),
   })),
-  ...topicList(entries).map((t) => ({ t: t.label, k: "topic", u: `/library?topic=${t.slug}` })),
+  ...topicList(entries).map((t) => ({ t: t.label, k: "topic", u: topicUrl(t.slug) })),
 ];
 const nav = [
   { key: "library", href: "/library" },
@@ -64,6 +67,7 @@ const year = new Date().getFullYear();
       </div>
     </header>
     <main id="main">
+      {light && <div class="toplight" aria-hidden="true" />}
       <slot />
     </main>
     <footer class="foot">
@@ -73,6 +77,7 @@ const year = new Date().getFullYear();
           <a href="/library">library</a>
           <a href="/map">map</a>
           <a href="/guide">guide</a>
+          <a href="/glossary">glossary</a>
           <a href="/about">about</a>
         </nav>
       </div>

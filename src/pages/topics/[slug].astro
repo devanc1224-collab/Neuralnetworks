@@ -1,0 +1,63 @@
+---
+import Base from "../../layouts/Base.astro";
+import EntryCard from "../../components/EntryCard.astro";
+import { getEntries, topicList, topicNotes, slugify, evidence, LEVELS, formatDate, isoDate, type Entry } from "../../lib/site";
+import { ARROW } from "../../components/Icons";
+
+export async function getStaticPaths() {
+  const entries = await getEntries();
+  return topicList(entries).map((topic) => ({
+    params: { slug: topic.slug },
+    props: { topic, entries: entries.filter((e) => e.data.topics.map(slugify).includes(topic.slug)) },
+  }));
+}
+
+interface Props {
+  topic: { slug: string; label: string; count: number };
+  entries: Entry[];
+}
+const { topic, entries } = Astro.props;
+const note = topicNotes.get(topic.slug);
+const mix = [4, 3, 2, 1]
+  .map((n) => ({ level: n, label: LEVELS[n], count: entries.filter((e) => evidence(e)?.level === n).length }))
+  .filter((m) => m.count > 0);
+---
+
+<Base title={topic.label} description={note?.verdict || `Entries on ${topic.label}.`} active="library">
+  <section class="wrap page-head">
+    <a class="back" href="/map"><Fragment set:html={ARROW} /> all topics</a>
+    <h1 class="topic-title">{topic.label}</h1>
+    <p class="lede">{entries.length} {entries.length === 1 ? "entry" : "entries"} on this topic.</p>
+  </section>
+
+  <section class="wrap" aria-label={`Entries on ${topic.label}`}>
+    {
+      note && (
+        <div class="card box verdict">
+          <h2 class="box-label">where the evidence stands</h2>
+          <p>{note.verdict}</p>
+          {note.updated && (
+            <p class="verdict-date">
+              updated <time datetime={isoDate(note.updated)}>{formatDate(note.updated)}</time>
+            </p>
+          )}
+        </div>
+      )
+    }
+    {
+      mix.length > 0 && (
+        <p class="mix">
+          <span class="mix-label">evidence so far</span>
+          {mix.map((m) => (
+            <a class="chip" href={`/library?topic=${topic.slug}&level=${m.level}`}>
+              {m.label} <small>{m.count}</small>
+            </a>
+          ))}
+        </p>
+      )
+    }
+    <div class="entry-grid">
+      {entries.map((e) => <EntryCard entry={e} />)}
+    </div>
+  </section>
+</Base>

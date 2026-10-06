@@ -36,7 +36,7 @@ const entries = defineCollection({
     reviewed: optionalDate,
     status: z.preprocess(blank, z.enum(["current", "corrected", "retracted"]).catch("current")),
 
-    source: group({ citation: text, url: text }),
+    source: group({ doi: text, citation: text, url: text }),
     cover: text,
     draft: z.preprocess((v) => v === true, z.boolean()),
   }),

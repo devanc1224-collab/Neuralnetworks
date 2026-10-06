@@ -1,13 +1,13 @@
 ---
 import Base from "../layouts/Base.astro";
-import { getEntries, topicList, TYPES, entryUrl, slugify } from "../lib/site";
+import { getEntries, topicList, topicUrl, TYPES, entryUrl, slugify } from "../lib/site";
 
 const entries = await getEntries();
 const topics = topicList(entries);
 const topicsOf = (e: (typeof entries)[number]) => [...new Set(e.data.topics.map(slugify).filter(Boolean))];
 
 const nodes = [
-  ...topics.map((t) => ({ id: `t:${t.slug}`, t: t.label, k: "topic", l: "topic", u: `/library?topic=${t.slug}` })),
+  ...topics.map((t) => ({ id: `t:${t.slug}`, t: t.label, k: "topic", l: "topic", u: topicUrl(t.slug) })),
   ...entries.map((e) => ({ id: `e:${e.id}`, t: e.data.title, k: e.data.type, l: TYPES[e.data.type].label, u: entryUrl(e) })),
 ];
 const at = new Map(nodes.map((n, i) => [n.id, i]));
@@ -59,7 +59,7 @@ const loose = entries.filter((e) => topicsOf(e).length === 0);
           {byTopic.map((t) => (
             <div class="topic-group">
               <h3>
-                <a href={`/library?topic=${t.slug}`}>{t.label}</a> <small>{t.count}</small>
+                <a href={topicUrl(t.slug)}>{t.label}</a> <small>{t.count}</small>
               </h3>
               <ul>
                 {t.entries.map((e) => (

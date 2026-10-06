@@ -17,6 +17,32 @@ export const site = {
     .filter((c: { label: string; url: string }) => c.label && c.url),
 };
 
+// Topic verdicts and the glossary are edited in the editor under "Topics" and "Glossary".
+import rawTopics from "../data/topics.json";
+import rawGlossary from "../data/glossary.json";
+
+export const topicNotes = new Map<string, { verdict: string; updated?: Date }>();
+for (const t of Array.isArray((rawTopics as any)?.topics) ? (rawTopics as any).topics : []) {
+  const key = slugifyEarly(text(t?.name));
+  const verdict = text(t?.verdict);
+  if (!key || !verdict) continue;
+  const when = t?.updated ? new Date(t.updated) : undefined;
+  topicNotes.set(key, { verdict, updated: when && !Number.isNaN(when.getTime()) ? when : undefined });
+}
+
+export const glossary: { term: string; definition: string }[] = (
+  Array.isArray((rawGlossary as any)?.terms) ? (rawGlossary as any).terms : []
+)
+  .map((g: any) => ({ term: text(g?.term), definition: text(g?.definition) }))
+  .filter((g: { term: string; definition: string }) => g.term && g.definition)
+  .sort((a: { term: string }, b: { term: string }) => a.term.localeCompare(b.term, "en", { sensitivity: "base" }));
+
+function slugifyEarly(s: string) {
+  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+export const topicUrl = (slug: string) => `/topics/${slug}`;
+
 export const TYPES = {
   study: { label: "study summary", plural: "study summaries" },
   research: { label: "original research", plural: "original research" },

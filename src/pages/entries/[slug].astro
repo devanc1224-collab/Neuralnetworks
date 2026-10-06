@@ -3,7 +3,19 @@ import { render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import EntryCard from "../../components/EntryCard.astro";
 import Meter from "../../components/Meter.astro";
-import { getEntries, TYPES, formatDate, isoDate, slugify, evidence, related, type Entry } from "../../lib/site";
+import {
+  getEntries,
+  TYPES,
+  formatDate,
+  isoDate,
+  slugify,
+  evidence,
+  related,
+  glossary,
+  topicUrl,
+  type Entry,
+} from "../../lib/site";
+import { lookupDoi } from "../../lib/doi";
 import { ARROW } from "../../components/Icons";
 
 export async function getStaticPaths() {
@@ -19,8 +31,15 @@ const { entry, entries } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
 const topics = d.topics.map((t) => t.trim().toLowerCase());
-const safeUrl = d.source.url && /^https?:\/\//i.test(d.source.url) ? d.source.url : undefined;
-const hasSource = Boolean(d.source.citation || safeUrl);
+// A hand-written citation or link always wins; the DOI fills in whatever is left blank.
+const paper = await lookupDoi(d.source.doi);
+const typedUrl = d.source.url && /^https?:\/\//i.test(d.source.url) ? d.source.url : undefined;
+const safeUrl = typedUrl ?? paper?.url;
+const citation = d.source.citation ?? paper?.citation;
+const hasSource = Boolean(citation || safeUrl);
+// only terms that actually appear in this entry are sent to the page
+const haystack = `${entry.body ?? ""}`.toLowerCase();
+const terms = glossary.filter((g) => haystack.includes(g.term.toLowerCase()));
 const ev = evidence(entry);
 const hasFacts = Boolean(ev || d.sample || d.funding || d.reviewed);
 const hasNumbers = Boolean(d.effect.relative || d.effect.absolute);
@@ -40,7 +59,7 @@ const more = related(entry, entries);
       topics.length > 0 && (
         <div class="article-topics">
           {topics.map((t) => (
-            <a class="chip" href={`/library?topic=${slugify(t)}`}>
+            <a class="chip" href={topicUrl(slugify(t))}>
               {t}
             </a>
           ))}
@@ -145,7 +164,7 @@ const more = related(entry, entries);
       )
     }
 
-    <div class="prose">
+    <div class="prose" id="entry-body">
       <Content />
     </div>
 
@@ -166,7 +185,8 @@ const more = related(entry, entries);
       hasSource && (
         <section class="card box sourcebox" aria-labelledby="h-source">
           <h2 class="box-label" id="h-source">source</h2>
-          {d.source.citation && <p>{d.source.citation}</p>}
+          {citation && <p>{citation}</p>}
+          {paper && <p class="doi">DOI: {paper.doi}</p>}
           {safeUrl && (
             <a class="btn btn-ghost" href={safeUrl} rel="noopener">
               read the original <Fragment set:html={ARROW} />
@@ -176,6 +196,110 @@ const more = related(entry, entries);
       )
     }
   </article>
+
+  {terms.length > 0 && <script type="application/json" id="glossary-data" set:html={JSON.stringify(terms)} />}
+
+  <script>
+    // Glossary terms in the entry body get a dotted underline and a definition on hover, focus or tap.
+    (() => {
+      const body = document.getElementById("entry-body");
+      const data = document.getElementById("glossary-data");
+      if (!body || !data) return;
+      let terms: { term: string; definition: string }[] = [];
+      try {
+        terms = JSON.parse(data.textContent || "[]");
+      } catch {
+        return;
+      }
+      if (!terms.length) return;
+      // longest first, so "relative risk" is matched before "risk"
+      terms.sort((a, b) => b.term.length - a.term.length);
+      const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const done = new Set<string>();
+
+      const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
+        acceptNode: (node) =>
+          node.parentElement?.closest("a, code, pre, h1, h2, h3, h4, .term") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+      });
+      const texts: Text[] = [];
+      while (walker.nextNode()) texts.push(walker.currentNode as Text);
+
+      for (const t of terms) {
+        const key = t.term.toLowerCase();
+        if (done.has(key)) continue;
+        const re = new RegExp(`(^|[^A-Za-z0-9])(${escape(t.term)})(?![A-Za-z0-9])`, "i");
+        for (let i = 0; i < texts.length; i++) {
+          const node = texts[i];
+          if (!node.parentNode || node.parentElement?.closest(".term")) continue;
+          const m = re.exec(node.data);
+          if (!m) continue;
+          const start = m.index + m[1].length;
+          const hit = node.splitText(start);
+          const rest = hit.splitText(m[2].length);
+          const span = document.createElement("span");
+          span.className = "term";
+          span.tabIndex = 0;
+          span.setAttribute("role", "note");
+          span.setAttribute("aria-label", `${hit.data}: ${t.definition}`);
+          span.dataset.def = t.definition;
+          span.dataset.term = t.term;
+          hit.parentNode!.replaceChild(span, hit);
+          span.appendChild(hit);
+          texts.splice(i + 1, 0, rest);
+          done.add(key);
+          break; // first mention only
+        }
+      }
+
+      const marked = [...body.querySelectorAll<HTMLElement>(".term")];
+      if (!marked.length) return;
+      const tip = document.createElement("div");
+      tip.className = "tip";
+      tip.setAttribute("aria-hidden", "true");
+      tip.hidden = true;
+      document.body.appendChild(tip);
+
+      const hide = () => {
+        tip.hidden = true;
+      };
+      const show = (el: HTMLElement) => {
+        tip.innerHTML = "";
+        const name = document.createElement("b");
+        name.textContent = el.dataset.term || "";
+        const def = document.createElement("span");
+        def.textContent = el.dataset.def || "";
+        const more = document.createElement("a");
+        more.href = "/glossary";
+        more.textContent = "glossary";
+        tip.append(name, def, more);
+        tip.hidden = false;
+        const r = el.getBoundingClientRect();
+        const w = tip.offsetWidth;
+        const h = tip.offsetHeight;
+        const left = Math.min(document.documentElement.clientWidth - w - 12, Math.max(12, r.left + r.width / 2 - w / 2));
+        const above = r.top - h - 10;
+        tip.style.left = `${left + window.scrollX}px`;
+        tip.style.top = `${(above < 70 ? r.bottom + 10 : above) + window.scrollY}px`;
+      };
+
+      for (const el of marked) {
+        el.addEventListener("pointerenter", () => show(el));
+        el.addEventListener("pointerleave", (e) => {
+          // keep it open while the pointer moves onto the definition itself
+          if (e.relatedTarget instanceof Node && tip.contains(e.relatedTarget)) return;
+          hide();
+        });
+        el.addEventListener("focus", () => show(el));
+        el.addEventListener("blur", hide);
+        el.addEventListener("click", () => show(el));
+      }
+      tip.addEventListener("pointerleave", hide);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") hide();
+      });
+      window.addEventListener("resize", hide);
+    })();
+  </script>
 
   {
     more.length > 0 && (

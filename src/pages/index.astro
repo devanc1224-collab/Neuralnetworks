@@ -2,7 +2,7 @@
 import Base from "../layouts/Base.astro";
 import EntryCard from "../components/EntryCard.astro";
 import Bio from "../components/Bio.astro";
-import { site, getEntries, topicList, TYPES, type EntryType } from "../lib/site";
+import { site, getEntries, topicList, topicUrl, TYPES, type EntryType } from "../lib/site";
 import { ARROW, SEARCH } from "../components/Icons";
 
 const entries = await getEntries();
@@ -16,7 +16,7 @@ const kinds = (Object.keys(TYPES) as EntryType[]).map((k) => ({
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 ---
 
-<Base>
+<Base light={false}>
   <section class="hero wrap">
     <p class="eyebrow reveal">
       <span class="pulse" aria-hidden="true"></span>{plural(entries.length, "entry", "entries")}
@@ -34,7 +34,7 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
       topics.length > 0 && (
         <div class="topic-row reveal">
           {topics.slice(0, 8).map((t) => (
-            <a class="chip" href={`/library?topic=${t.slug}`}>
+            <a class="chip" href={topicUrl(t.slug)}>
               {t.label} <small>{t.count}</small>
             </a>
           ))}
